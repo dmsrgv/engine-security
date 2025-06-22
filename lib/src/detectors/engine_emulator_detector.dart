@@ -29,9 +29,9 @@ class EngineEmulatorDetector implements ISecurityDetector {
   Future<SecurityCheckModel> performCheck() async {
     if (!enabled) {
       return SecurityCheckModel.secure(
-        isSecure: false,
         details: 'Emulator detector disabled',
         detectionMethod: 'disabled_check',
+        confidence: 1.0,
       );
     }
 

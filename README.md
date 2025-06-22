@@ -124,21 +124,34 @@ class DetectorInfoModel {
 ```
 
 #### `security_check_model.dart`
-Modelo tipado para resultados de verificação de segurança:
+Modelo tipado para resultados de verificação de segurança. Este é o "coração" do sistema - cada verificação retorna um `SecurityCheckModel` que contém todas as informações sobre o que foi verificado:
+
 ```dart
 class SecurityCheckModel {
-  final bool isSecure;                    // Resultado da verificação
-  final SecurityThreatType threatType;    // Tipo de ameaça detectada
-  final String? details;                  // Detalhes da detecção
-  final String? detectionMethod;          // Método usado na detecção
-  final double confidence;                // Nível de confiança (0.0-1.0)
-  final DateTime? timestamp;              // Timestamp da verificação
+  final bool isSecure;                    // true = seguro, false = ameaça detectada
+  final SecurityThreatType threatType;    // Que tipo de ameaça foi encontrada
+  final String? details;                  // Explicação detalhada do que aconteceu
+  final String? detectionMethod;          // Como a detecção foi feita
+  final double confidence;                // Quão confiável é este resultado (0.0 a 1.0)
+  final DateTime? timestamp;              // Quando esta verificação foi feita
 }
 ```
 
-Factories convenientes:
-- `SecurityCheckModel.secure()`: Para resultados seguros
-- `SecurityCheckModel.threat()`: Para ameaças detectadas
+**Entendendo o `confidence` (Confiança):**
+- `1.0` = 100% confiante (certeza absoluta)
+- `0.9` = 90% confiante (muito provável)  
+- `0.8` = 80% confiante (bastante provável)
+- `0.5` = 50% confiante (incerto - pode ser falso positivo)
+- `0.0` = 0% confiante (não confiável)
+
+**Exemplos práticos:**
+- Se o detector encontra o arquivo `/system/bin/su` (root), confidence = 0.9 (muito confiável)
+- Se a detecção falha por erro de sistema, confidence = 0.5 (resultado incerto)
+- Se o detector está desabilitado, confidence = 1.0 (certeza de que está desabilitado)
+
+**Factories convenientes:**
+- `SecurityCheckModel.secure()`: Cria resultado "seguro" (isSecure = true)
+- `SecurityCheckModel.threat()`: Cria resultado "ameaça" (isSecure = false)
 
 ### 📁 `/lib/src/enums/`
 
@@ -189,19 +202,28 @@ final fridaDetector = EngineFridaDetector(enabled: true);
 final fridaResult = await fridaDetector.performCheck();
 
 if (!fridaResult.isSecure) {
-  print('ALERTA: ${fridaResult.details}');
-  print('Confiança: ${fridaResult.confidence}');
-  print('Severidade: ${fridaResult.threatType.severityLevel}');
-  print('Detectado em: ${fridaResult.timestamp}');
+  print('🚨 ALERTA: ${fridaResult.details}');
+  print('📊 Confiança: ${(fridaResult.confidence * 100).toInt()}%');
+  print('⚠️ Severidade: ${fridaResult.threatType.severityLevel}/10');
+  print('🕒 Detectado em: ${fridaResult.timestamp}');
+  
+  // Interpretar nível de confiança
+  if (fridaResult.confidence >= 0.9) {
+    print('✅ Resultado muito confiável');
+  } else if (fridaResult.confidence >= 0.7) {
+    print('⚡ Resultado confiável');
+  } else {
+    print('⚠️ Resultado incerto - verificar novamente');
+  }
 }
 
 final debuggerDetector = EngineDebuggerDetector(enabled: true);
 final debuggerResult = await debuggerDetector.performCheck();
 
-print('Informações do Detector:');
-print('Nome: ${debuggerDetector.detectorInfo.name}');
-print('Plataforma: ${debuggerDetector.detectorInfo.platform}');
-print('Tipo de Ameaça: ${debuggerDetector.detectorInfo.threatType.displayName}');
+print('ℹ️ Informações do Detector:');
+print('📱 Nome: ${debuggerDetector.detectorInfo.name}');
+print('🖥️ Plataforma: ${debuggerDetector.detectorInfo.platform}');
+print('🎯 Tipo de Ameaça: ${debuggerDetector.detectorInfo.threatType.displayName}');
 ```
 
 ### Verificação Completa de Segurança
@@ -285,6 +307,44 @@ switch (threatType.severityLevel) {
 }
 ```
 
+### Como Interpretar os Resultados
+
+O `SecurityCheckModel` fornece informações completas sobre cada verificação. Aqui está como entender os resultados:
+
+```dart
+final result = await detector.performCheck();
+
+// 1. Verificar se é seguro
+if (result.isSecure) {
+  print('✅ Tudo OK - Nenhuma ameaça detectada');
+} else {
+  print('🚨 AMEAÇA DETECTADA!');
+}
+
+// 2. Analisar o nível de confiança
+String getConfidenceDescription(double confidence) {
+  if (confidence >= 0.95) return 'Extremamente confiável';
+  if (confidence >= 0.85) return 'Muito confiável';
+  if (confidence >= 0.70) return 'Confiável';
+  if (confidence >= 0.50) return 'Incerto';
+  return 'Não confiável';
+}
+
+print('Confiança: ${getConfidenceDescription(result.confidence)}');
+
+// 3. Decidir que ação tomar baseado na confiança
+if (!result.isSecure && result.confidence >= 0.8) {
+  // Alta confiança = tomar ação imediata
+  print('⚠️ Bloqueando aplicativo - ameaça confirmada');
+} else if (!result.isSecure && result.confidence >= 0.5) {
+  // Média confiança = investigar mais
+  print('🔍 Verificação adicional necessária');
+} else if (!result.isSecure) {
+  // Baixa confiança = apenas logar
+  print('📝 Possível falso positivo - apenas registrando');
+}
+```
+
 ## Detectores Disponíveis
 
 ### EngineFridaDetector
@@ -337,6 +397,21 @@ switch (threatType.severityLevel) {
 - Modelos tipados para melhor type safety
 - Implementação de `// ignore_for_file: empty_catches` para catches vazios intencionais
 
+### Valores de Confidence Padronizados
+Para manter consistência, o sistema usa estes valores padrão de confidence:
+
+**Detecções Positivas (ameaças encontradas):**
+- `0.95` - Frida detectado (múltiplos indicadores)
+- `0.90` - Root/Jailbreak detectado (arquivos específicos encontrados)
+- `0.85` - Emulador/Debugger detectado (características claras)
+- `0.80` - Resultado padrão para detecções confiáveis
+
+**Detecções Negativas (ambiente seguro):**
+- `1.00` - Detector desabilitado (certeza absoluta)
+- `0.90` - Nenhuma ameaça detectada com varredura completa
+- `0.80` - Verificação básica sem indicadores
+- `0.50` - Falha na detecção/erro no processo
+
 ### Considerações de Segurança
 - Todos os detectores executam verificações assíncronas
 - Tratamento robusto de erros com fallback seguro
@@ -351,3 +426,8 @@ switch (threatType.severityLevel) {
 - Cache inteligente de resultados quando aplicável
 
 Este plugin segue as melhores práticas de segurança mobile e está alinhado com os padrões da indústria para proteção runtime de aplicações móveis. 
+
+---
+
+**Feito com ❤️ por Thiago Moreira para Comunidade Flutter**
+

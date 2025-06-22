@@ -28,10 +28,9 @@ class EngineFridaDetector implements ISecurityDetector {
   Future<SecurityCheckModel> performCheck() async {
     if (!enabled) {
       return SecurityCheckModel.secure(
-        isSecure: false,
         details: 'Frida detector disabled',
-        detectionMethod: 'performCheck',
-        confidence: 0,
+        detectionMethod: 'disabled_check',
+        confidence: 1.0,
       );
     }
 
@@ -70,7 +69,6 @@ class EngineFridaDetector implements ISecurityDetector {
       );
     } catch (e) {
       return SecurityCheckModel.secure(
-        isSecure: false,
         details: 'Frida detection failed: $e',
         detectionMethod: 'error_handling',
         confidence: 0.50,

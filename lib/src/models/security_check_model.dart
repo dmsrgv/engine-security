@@ -14,9 +14,8 @@ class SecurityCheckModel {
     final String? details,
     final String? detectionMethod,
     final double confidence = 1.0,
-    final bool isSecure = true,
   }) => SecurityCheckModel(
-    isSecure: isSecure,
+    isSecure: true,
     threatType: SecurityThreatType.unknown,
     details: details,
     detectionMethod: detectionMethod,
@@ -40,7 +39,7 @@ class SecurityCheckModel {
 
   @override
   String toString() =>
-      'SecurityCheckResult('
+      'SecurityCheckModel('
       'isSecure: $isSecure, '
       'threatType: $threatType, '
       'details: $details, '

@@ -30,10 +30,9 @@ class EngineDebuggerDetector implements ISecurityDetector {
   Future<SecurityCheckModel> performCheck() async {
     if (!enabled) {
       return SecurityCheckModel.secure(
-        isSecure: false,
         details: 'Debugger detector disabled',
-        detectionMethod: 'performCheck',
-        confidence: 1,
+        detectionMethod: 'disabled_check',
+        confidence: 1.0,
       );
     }
 
@@ -49,18 +48,19 @@ class EngineDebuggerDetector implements ISecurityDetector {
           threatType: SecurityThreatType.debugger,
           details: 'Debugger detected: ${detectionMethods.join(', ')}',
           detectionMethod: 'platform_specific_detection',
-          confidence: 0.50,
+          confidence: 0.85,
         );
       }
 
       return SecurityCheckModel.secure(
         details: 'No debugger detected',
         detectionMethod: 'debugger_checks',
+        confidence: 0.80,
       );
     } catch (e) {
       return SecurityCheckModel.secure(
         details: 'Debugger detection failed: $e',
-        detectionMethod: 'performCheck: error_handling',
+        detectionMethod: 'error_handling',
         confidence: 0.50,
       );
     }

@@ -30,10 +30,9 @@ class EngineRootDetector implements ISecurityDetector {
   Future<SecurityCheckModel> performCheck() async {
     if (!enabled) {
       return SecurityCheckModel.secure(
-        isSecure: false,
         details: 'Root detector disabled',
-        detectionMethod: 'performCheck',
-        confidence: 1,
+        detectionMethod: 'disabled_check',
+        confidence: 1.0,
       );
     }
 
@@ -59,7 +58,6 @@ class EngineRootDetector implements ISecurityDetector {
       );
     } catch (e) {
       return SecurityCheckModel.secure(
-        isSecure: false,
         details: 'Root detection failed: $e',
         detectionMethod: 'error_handling',
         confidence: 0.50,
