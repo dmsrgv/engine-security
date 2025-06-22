@@ -1,4 +1,4 @@
-package com.stmr.engine_security
+package tech.stmr.engine_security
 
 import android.content.Context
 import android.content.pm.ApplicationInfo

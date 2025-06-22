@@ -36,6 +36,9 @@ class SecurityTestNotifier extends StateNotifier<Map<String, DetectorTestResult?
         case 'Debugger':
           detector = EngineDebuggerDetector(enabled: true);
           break;
+        case 'GPS Fake':
+          detector = EngineGpsFakeDetector(enabled: true);
+          break;
         default:
           throw Exception('Detector não encontrado: $detectorName');
       }
@@ -64,10 +67,7 @@ class SecurityTestNotifier extends StateNotifier<Map<String, DetectorTestResult?
         ...state,
         detectorName: DetectorTestResult(
           detectorName: detectorName,
-          result: SecurityCheckModel.secure(
-            details: 'Erro no teste: $e',
-            confidence: 0.0,
-          ),
+          result: SecurityCheckModel.secure(details: 'Erro no teste: $e', confidence: 0.0),
           timestamp: DateTime.now(),
           executionTime: stopwatch.elapsed,
           isRunning: false,
@@ -77,7 +77,7 @@ class SecurityTestNotifier extends StateNotifier<Map<String, DetectorTestResult?
   }
 
   Future<void> runAllTests() async {
-    final detectors = ['Frida', 'Root/Jailbreak', 'Emulator', 'Debugger'];
+    final detectors = ['Frida', 'Root/Jailbreak', 'Emulator', 'Debugger', 'GPS Fake'];
 
     for (final detector in detectors) {
       await runDetectorTest(detector);

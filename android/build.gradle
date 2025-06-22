@@ -1,4 +1,4 @@
-group 'com.stmr.engine_security'
+group 'tech.stmr.engine_security'
 version '1.0.0'
 
 buildscript {

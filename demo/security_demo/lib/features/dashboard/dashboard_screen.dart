@@ -27,40 +27,27 @@ class DashboardScreen extends ConsumerWidget {
                 centerTitle: true,
                 title: const Text(
                   'Security Demo',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 background: Container(
-                  decoration: const BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                  ),
+                  decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
                   child: SafeArea(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const SizedBox(height: 20),
-                        const Icon(
-                          Icons.security,
-                          size: 48,
-                          color: Colors.white,
-                        ),
+                        const Icon(Icons.security, size: 48, color: Colors.white),
                         const SizedBox(height: 16),
                         Text(
                           'Engine Security',
-                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.headlineLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Teste todos os detectores',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: Colors.white70,
-                              ),
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white70),
                         ),
                         const SizedBox(height: 40),
                       ],
@@ -79,20 +66,14 @@ class DashboardScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     Row(
                       children: [
-                        Text(
-                          'Detectores de Segurança',
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
+                        Text('Detectores de Segurança', style: Theme.of(context).textTheme.headlineSmall),
                         const Spacer(),
                         OutlinedButton.icon(
-                          onPressed:
-                              summary.isRunning ? null : () => ref.read(securityTestProvider.notifier).runAllTests(),
+                          onPressed: summary.isRunning
+                              ? null
+                              : () => ref.read(securityTestProvider.notifier).runAllTests(),
                           icon: summary.isRunning
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                )
+                              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                               : const Icon(Icons.play_arrow),
                           label: Text(summary.isRunning ? 'Executando...' : 'Testar Todos'),
                         ),
@@ -142,6 +123,15 @@ class DashboardScreen extends ConsumerWidget {
                     isRunning: testResults['Debugger']?.isRunning ?? false,
                     onTest: () => ref.read(securityTestProvider.notifier).runDetectorTest('Debugger'),
                   ),
+                  const SizedBox(height: 16),
+                  SecurityCard(
+                    title: 'Detecção GPS Fake',
+                    icon: Icons.location_off,
+                    description: 'Detecta localização falsa e apps de GPS fake',
+                    testResult: testResults['GPS Fake'],
+                    isRunning: testResults['GPS Fake']?.isRunning ?? false,
+                    onTest: () => ref.read(securityTestProvider.notifier).runDetectorTest('GPS Fake'),
+                  ),
                   const SizedBox(height: 32),
                 ]),
               ),
@@ -185,17 +175,14 @@ class DashboardScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Resumo de Segurança',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
+                      Text('Resumo de Segurança', style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(height: 4),
                       Text(
                         summary.overallStatus,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: summary.threatsDetected > 0 ? AppColors.error : AppColors.success,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          color: summary.threatsDetected > 0 ? AppColors.error : AppColors.success,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -252,10 +239,7 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  '${summary.completionPercentage.toInt()}% Completo',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+                Text('${summary.completionPercentage.toInt()}% Completo', style: Theme.of(context).textTheme.bodySmall),
               ],
             ],
           ],
@@ -264,13 +248,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummaryItem(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
+  Widget _buildSummaryItem(BuildContext context, String label, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -284,16 +262,9 @@ class DashboardScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: color, fontWeight: FontWeight.bold),
           ),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall,
-            textAlign: TextAlign.center,
-          ),
+          Text(label, style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
         ],
       ),
     );
