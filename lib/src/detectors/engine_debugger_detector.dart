@@ -4,6 +4,21 @@ import 'dart:io';
 
 import 'package:engine_security/src/src.dart';
 
+/// Detector for debuggers attached to the application process.
+///
+/// IMPORTANT: This detector does NOT only detect "USB Debugging enabled".
+/// It specifically checks if there is a debugger actively monitoring
+/// or instrumenting the application process.
+///
+/// Differences:
+/// - USB Debugging: Allows connecting device to PC (not a threat)
+/// - Attached debugger: Active process controlling/monitoring the app (threat)
+///
+/// Checks performed:
+/// - TracerPid: If another process is "tracking" this process
+/// - Debugger processes: gdb, lldb, strace, ptrace, etc.
+/// - Timing attack: Detects instrumentation by execution time
+/// - Active ADB connections: Active remote debugging
 class EngineDebuggerDetector implements ISecurityDetector {
   EngineDebuggerDetector({this.enabled = true});
 
@@ -69,6 +84,7 @@ class EngineDebuggerDetector implements ISecurityDetector {
   Future<List<String>> _checkAndroidDebugger() async {
     final indicators = <String>[];
 
+    // Verificação principal: processo sendo trackeado
     final result =
         await Process.run('cat', [
           '/proc/self/status',
@@ -91,6 +107,7 @@ class EngineDebuggerDetector implements ISecurityDetector {
       }
     }
 
+    // Verificação de processos debugger ativos
     final psResult =
         await Process.run('ps', [
           '-ef',
@@ -115,6 +132,34 @@ class EngineDebuggerDetector implements ISecurityDetector {
           break;
         }
       }
+    }
+
+    // Verificação adicional: aplicações de debugging conectadas
+    try {
+      final debuggableResult = await Process.run('getprop', ['ro.debuggable'], runInShell: true);
+      final adbResult = await Process.run('getprop', ['service.adb.tcp.port'], runInShell: true);
+
+      if (debuggableResult.exitCode == 0 && adbResult.exitCode == 0) {
+        final isDebuggable = debuggableResult.stdout.toString().trim() == '1';
+        final adbPort = adbResult.stdout.toString().trim();
+
+        // Se é debuggable E tem porta ADB ativa, pode indicar debugging ativo
+        if (isDebuggable && adbPort.isNotEmpty && adbPort != '-1') {
+          // Verificar se há realmente conexão ADB ativa
+          final netstatResult = await Process.run('netstat', ['-an'], runInShell: true).catchError(
+            (final _) => ProcessResult(0, 1, '', ''),
+          );
+
+          if (netstatResult.exitCode == 0) {
+            final netOutput = netstatResult.stdout.toString();
+            if (netOutput.contains(':$adbPort') || netOutput.contains('5037')) {
+              indicators.add('Active ADB debugging connection detected');
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // Falha silenciosa, não é crítico
     }
 
     return indicators;

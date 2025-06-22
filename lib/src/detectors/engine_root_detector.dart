@@ -79,12 +79,6 @@ class EngineRootDetector implements ISecurityDetector {
       '/system/bin/failsafe/su',
       '/data/local/su',
       '/su/bin/su',
-      '/system/xbin/which',
-      '/data/local/xbin/which',
-      '/system/bin/which',
-      '/system/xbin/busybox',
-      '/system/bin/busybox',
-      '/data/local/xbin/busybox',
     ];
 
     for (final path in rootFiles) {
@@ -120,14 +114,32 @@ class EngineRootDetector implements ISecurityDetector {
     try {
       final result = await Process.run('su', ['-c', 'id'], runInShell: true).timeout(const Duration(seconds: 1));
       if (result.exitCode == 0) {
-        indicators.add('Su command successful');
+        final output = result.stdout.toString();
+        if (output.contains('uid=0') || output.contains('root')) {
+          indicators.add('Su command successful with root privileges');
+        }
       }
     } catch (e) {}
 
-    final result = await Process.run('getprop', ['ro.build.tags'], runInShell: true);
-    if (result.exitCode == 0 && result.stdout.toString().toLowerCase().contains('test-keys')) {
-      indicators.add('Test keys build detected');
-    }
+    try {
+      final result = await Process.run('getprop', ['ro.build.tags'], runInShell: true);
+      if (result.exitCode == 0) {
+        final buildTags = result.stdout.toString().toLowerCase().trim();
+        if (buildTags.contains('test-keys')) {
+          final debuggable = await Process.run('getprop', ['ro.debuggable'], runInShell: true);
+          final secure = await Process.run('getprop', ['ro.secure'], runInShell: true);
+
+          if (debuggable.exitCode == 0 && secure.exitCode == 0) {
+            final isDebuggable = debuggable.stdout.toString().trim() == '1';
+            final isSecure = secure.stdout.toString().trim() == '1';
+
+            if (!isSecure && !isDebuggable) {
+              indicators.add('Insecure build with test-keys detected');
+            }
+          }
+        }
+      }
+    } catch (e) {}
 
     return indicators;
   }

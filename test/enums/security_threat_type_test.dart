@@ -11,6 +11,7 @@ void main() {
           SecurityThreatType.emulator,
           SecurityThreatType.rootJailbreak,
           SecurityThreatType.debugger,
+          SecurityThreatType.gpsFake,
         ];
 
         expect(SecurityThreatType.values, containsAll(expectedValues));
@@ -23,6 +24,7 @@ void main() {
         expect(SecurityThreatType.emulator, isNotNull);
         expect(SecurityThreatType.rootJailbreak, isNotNull);
         expect(SecurityThreatType.debugger, isNotNull);
+        expect(SecurityThreatType.gpsFake, isNotNull);
       });
     });
 
@@ -33,6 +35,7 @@ void main() {
         expect(SecurityThreatType.emulator.displayName, equals('Emulator Detection'));
         expect(SecurityThreatType.rootJailbreak.displayName, equals('Root/Jailbreak Detection'));
         expect(SecurityThreatType.debugger.displayName, equals('Debugger Detection'));
+        expect(SecurityThreatType.gpsFake.displayName, equals('GPS Fake Detection'));
       });
 
       test('should have correct description for all values', () {
@@ -44,6 +47,7 @@ void main() {
           equals('Device has been rooted (Android) or jailbroken (iOS)'),
         );
         expect(SecurityThreatType.debugger.description, equals('Debugger attachment detected'));
+        expect(SecurityThreatType.gpsFake.description, equals('GPS location spoofing or fake GPS app detected'));
       });
 
       test('should have correct severityLevel for all values', () {
@@ -52,6 +56,7 @@ void main() {
         expect(SecurityThreatType.emulator.severityLevel, equals(6));
         expect(SecurityThreatType.rootJailbreak.severityLevel, equals(8));
         expect(SecurityThreatType.debugger.severityLevel, equals(2));
+        expect(SecurityThreatType.gpsFake.severityLevel, equals(7));
       });
     });
 
@@ -62,6 +67,7 @@ void main() {
         expect(SecurityThreatType.debugger, equals(SecurityThreatType.debugger));
         expect(SecurityThreatType.unknown, equals(SecurityThreatType.unknown));
         expect(SecurityThreatType.rootJailbreak, equals(SecurityThreatType.rootJailbreak));
+        expect(SecurityThreatType.gpsFake, equals(SecurityThreatType.gpsFake));
       });
 
       test('should not be equal to different enum values', () {
@@ -84,6 +90,7 @@ void main() {
         expect(SecurityThreatType.debugger.toString(), contains('SecurityThreatType.debugger'));
         expect(SecurityThreatType.unknown.toString(), contains('SecurityThreatType.unknown'));
         expect(SecurityThreatType.rootJailbreak.toString(), contains('SecurityThreatType.rootJailbreak'));
+        expect(SecurityThreatType.gpsFake.toString(), contains('SecurityThreatType.gpsFake'));
       });
     });
 
@@ -104,6 +111,7 @@ void main() {
         expect(list, contains(SecurityThreatType.debugger));
         expect(list, contains(SecurityThreatType.unknown));
         expect(list, contains(SecurityThreatType.rootJailbreak));
+        expect(list, contains(SecurityThreatType.gpsFake));
       });
 
       test('should work with set operations', () {
@@ -117,6 +125,7 @@ void main() {
 
         expect(highSeverityThreats, contains(SecurityThreatType.frida));
         expect(highSeverityThreats, contains(SecurityThreatType.rootJailbreak));
+        expect(highSeverityThreats, contains(SecurityThreatType.gpsFake));
         expect(highSeverityThreats, isNot(contains(SecurityThreatType.debugger)));
       });
 
@@ -128,6 +137,7 @@ void main() {
         expect(displayNames, contains('Debugger Detection'));
         expect(displayNames, contains('Unknown Threat'));
         expect(displayNames, contains('Root/Jailbreak Detection'));
+        expect(displayNames, contains('GPS Fake Detection'));
       });
     });
 
@@ -145,6 +155,8 @@ void main() {
               return 'Device is rooted/jailbroken';
             case SecurityThreatType.unknown:
               return 'Unknown threat';
+            case SecurityThreatType.gpsFake:
+              return 'GPS fake detected';
           }
         }
 
@@ -153,6 +165,7 @@ void main() {
         expect(getTypeDescription(SecurityThreatType.debugger), equals('Debugger attached'));
         expect(getTypeDescription(SecurityThreatType.rootJailbreak), equals('Device is rooted/jailbroken'));
         expect(getTypeDescription(SecurityThreatType.unknown), equals('Unknown threat'));
+        expect(getTypeDescription(SecurityThreatType.gpsFake), equals('GPS fake detected'));
       });
 
       test('should maintain enum order consistency', () {
@@ -162,6 +175,7 @@ void main() {
         expect(valuesList.indexOf(SecurityThreatType.emulator), equals(2));
         expect(valuesList.indexOf(SecurityThreatType.rootJailbreak), equals(3));
         expect(valuesList.indexOf(SecurityThreatType.debugger), equals(4));
+        expect(valuesList.indexOf(SecurityThreatType.gpsFake), equals(5));
       });
 
       test('should work with json serialization scenarios', () {
@@ -172,6 +186,7 @@ void main() {
         expect(enumNames, contains('emulator'));
         expect(enumNames, contains('rootJailbreak'));
         expect(enumNames, contains('debugger'));
+        expect(enumNames, contains('gpsFake'));
       });
     });
 
@@ -232,7 +247,7 @@ void main() {
             .reduce((final a, final b) => a + b);
 
         final averageSeverity = totalSeverity / SecurityThreatType.values.length;
-        expect(averageSeverity, equals(6.0));
+        expect(averageSeverity, closeTo(6.17, 0.1));
       });
     });
   });
