@@ -87,6 +87,8 @@ analyzer:
     - lib/l10n/**
     - lib/**/*.g.dart
     - test/_data/**
+    - example/**
+    - examples/**
   errors:
     invalid_assignment: warning
     missing_return: error
