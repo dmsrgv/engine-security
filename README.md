@@ -363,7 +363,6 @@ Este projeto está licenciado sob a MIT License - veja o arquivo [LICENSE](LICEN
 
 ## 🏆 Reconhecimentos
 
-- Framework Flutter team
 - Comunidade Dart/Flutter
 - Contribuidores do projeto
 
