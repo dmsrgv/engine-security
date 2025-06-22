@@ -29,7 +29,7 @@
 - 🎯 **Pontuação Pana 100/100** - Qualidade máxima no pub.dev
 - 🔄 **CI/CD Automatizado** - Pipeline completo com GitHub Actions
 - 📱 **Android & iOS Exclusivo** - Otimizado para dispositivos móveis
-- 🛡️ **4 Detectores Especializados** - Frida, Root/Jailbreak, Emulator, Debugger
+- 🛡️ **5 Detectores Especializados** - Frida, Root/Jailbreak, Emulator, Debugger, GPS Fake
 - ⚡ **Detecção Assíncrona** - Performance otimizada
 - 🎨 **API Intuitiva** - Fácil integração e uso
 - 📊 **Sistema de Confiança** - Níveis de confiança calibrados
@@ -83,6 +83,7 @@ Future<void> performFullSecurityCheck() async {
     EngineRootDetector(),
     EngineEmulatorDetector(),
     EngineDebuggerDetector(),
+    EngineGpsFakeDetector(),
   ];
   
   print('🔍 Executando verificação completa de segurança...\n');
@@ -127,6 +128,12 @@ Future<void> performFullSecurityCheck() async {
 - **Métodos**: Processos de debug, timing attacks
 - **Plataformas**: Android, iOS
 
+### 5. 🗺️ GPS Fake Detector (`EngineGpsFakeDetector`)
+- **Ameaça**: `SecurityThreatType.gpsFake`
+- **Confiança**: 90%
+- **Métodos**: Mock location, apps falsos, consistência GPS, análise de localização
+- **Plataformas**: Android, iOS
+
 ## 📊 Modelos de Dados
 
 ### SecurityCheckModel
@@ -166,6 +173,7 @@ enum SecurityThreatType {
   emulator,     // Severidade: 6
   rootJailbreak,// Severidade: 8
   debugger,     // Severidade: 2
+  gpsFake,      // Severidade: 7
 }
 ```
 
@@ -195,6 +203,73 @@ flutter run
 ### Implementação Personalizada
 
 ```dart
+### Detector de GPS Fake - Exemplo Avançado
+
+```dart
+import 'package:engine_security/engine_security.dart';
+
+void main() async {
+  final gpsDetector = EngineGpsFakeDetector();
+  
+  // Verificação básica
+  final result = await gpsDetector.performCheck();
+  
+  if (!result.isSecure) {
+    print('⚠️ GPS Fake detectado!');
+    print('📍 Detalhes: ${result.details}');
+    print('🔍 Método: ${result.detectionMethod}');
+    print('🎯 Confiança: ${(result.confidence * 100).toStringAsFixed(1)}%');
+    
+    // Tomar ações de segurança
+    await handleGpsFakeDetection(result);
+  } else {
+    print('✅ GPS é confiável');
+  }
+  
+  // Verificações específicas
+  final mockEnabled = await EngineGpsFakeDetector.checkMockLocationEnabled();
+  final fakeApps = await EngineGpsFakeDetector.getInstalledFakeGpsApps();
+  
+  print('📱 Mock Location habilitado: $mockEnabled');
+  print('🚫 Apps de GPS Fake encontrados: ${fakeApps.length}');
+  
+  for (final app in fakeApps) {
+    print('   - $app');
+  }
+}
+
+Future<void> handleGpsFakeDetection(SecurityCheckModel result) async {
+  // Bloquear funcionalidades baseadas em localização
+  // Registrar tentativa de fraude
+  // Solicitar verificação adicional do usuário
+  // Etc.
+}
+```
+
+### Técnicas de Detecção de GPS Fake
+
+O `EngineGpsFakeDetector` utiliza múltiplas técnicas para detectar manipulação de GPS:
+
+#### 1. 🔧 Verificação de Mock Location (Android)
+- Detecta se as "opções de desenvolvedor" têm mock location habilitado
+- Verifica configurações do sistema Android
+
+#### 2. 📱 Detecção de Apps de GPS Fake
+- Verifica instalação de mais de 25 apps conhecidos de GPS fake
+- Lista atualizada dos principais apps de spoofing de localização
+
+#### 3. 📊 Análise de Confiabilidade da Fonte
+- Verifica precisão suspeita do GPS (< 100m pode indicar fake)
+- Detecta valores impossíveis (altitude e velocidade zero)
+
+#### 4. 🔄 Verificação de Consistência GPS
+- Analisa movimento impossível entre leituras GPS
+- Detecta "teletransporte" (distância > 1km em < 10s)
+
+#### 5. 🔐 Análise de Permissões
+- Verifica interferência em permissões de localização
+- Detecta desabilitação suspeita de serviços de localização
+
 class MySecurityManager {
   final List<ISecurityDetector> _detectors = [
     EngineFridaDetector(),

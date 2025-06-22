@@ -26,6 +26,12 @@ enum SecurityThreatType {
     displayName: 'Debugger Detection',
     description: 'Debugger attachment detected',
     severityLevel: 2,
+  ),
+
+  gpsFake(
+    displayName: 'GPS Fake Detection',
+    description: 'GPS location spoofing or fake GPS app detected',
+    severityLevel: 7,
   );
 
   final String displayName;
