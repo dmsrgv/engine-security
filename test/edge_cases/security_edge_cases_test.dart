@@ -5,12 +5,12 @@ import 'package:test/test.dart';
 
 void main() {
   group('Security Edge Cases', () {
-    group('SecurityCheckModel Edge Cases', () {
+    group('EngineSecurityCheckModel Edge Cases', () {
       test('should handle extreme confidence values', () {
-        final model1 = SecurityCheckModel.secure(confidence: 0.0);
-        final model2 = SecurityCheckModel.secure(confidence: 1.0);
-        final model3 = SecurityCheckModel.threat(
-          threatType: SecurityThreatType.unknown,
+        final model1 = EngineSecurityCheckModel.secure(confidence: 0.0);
+        final model2 = EngineSecurityCheckModel.secure(confidence: 1.0);
+        final model3 = EngineSecurityCheckModel.threat(
+          threatType: EngineSecurityThreatType.unknown,
           confidence: 0.5,
         );
 
@@ -23,7 +23,7 @@ void main() {
       });
 
       test('should handle null values gracefully', () {
-        final model = SecurityCheckModel.secure(
+        final model = EngineSecurityCheckModel.secure(
           details: null,
           detectionMethod: null,
         );
@@ -31,12 +31,12 @@ void main() {
         expect(model.details, isNull);
         expect(model.detectionMethod, isNull);
         expect(model.isSecure, isTrue);
-        expect(model.threatType, equals(SecurityThreatType.unknown));
+        expect(model.threatType, equals(EngineSecurityThreatType.unknown));
       });
 
       test('should create consistent threat models', () {
-        final models = SecurityThreatType.values
-            .map((final type) => SecurityCheckModel.threat(threatType: type))
+        final models = EngineSecurityThreatType.values
+            .map((final type) => EngineSecurityCheckModel.threat(threatType: type))
             .toList();
 
         for (final model in models) {
@@ -49,10 +49,10 @@ void main() {
 
     group('SecurityThreatType Edge Cases', () {
       test('should handle all enum values consistently', () {
-        const allTypes = SecurityThreatType.values;
+        const allTypes = EngineSecurityThreatType.values;
 
         for (final type in allTypes) {
-          expect(type.toString(), contains('SecurityThreatType.'));
+          expect(type.toString(), contains('EngineSecurityThreatType.'));
           expect(type.name, isNotEmpty);
           expect(type.index, isA<int>());
           expect(type.index, greaterThanOrEqualTo(0));
@@ -61,32 +61,32 @@ void main() {
       });
 
       test('should maintain enum ordering consistency', () {
-        expect(SecurityThreatType.unknown.index, equals(0));
-        expect(SecurityThreatType.frida.index, equals(1));
-        expect(SecurityThreatType.emulator.index, equals(2));
-        expect(SecurityThreatType.rootJailbreak.index, equals(3));
-        expect(SecurityThreatType.debugger.index, equals(4));
+        expect(EngineSecurityThreatType.unknown.index, equals(0));
+        expect(EngineSecurityThreatType.frida.index, equals(1));
+        expect(EngineSecurityThreatType.emulator.index, equals(2));
+        expect(EngineSecurityThreatType.rootJailbreak.index, equals(3));
+        expect(EngineSecurityThreatType.debugger.index, equals(4));
       });
 
       test('should handle enum comparisons', () {
-        expect(SecurityThreatType.unknown == SecurityThreatType.unknown, isTrue);
-        expect(SecurityThreatType.frida != SecurityThreatType.emulator, isTrue);
-        expect(SecurityThreatType.values.contains(SecurityThreatType.debugger), isTrue);
+        expect(EngineSecurityThreatType.unknown == EngineSecurityThreatType.unknown, isTrue);
+        expect(EngineSecurityThreatType.frida != EngineSecurityThreatType.emulator, isTrue);
+        expect(EngineSecurityThreatType.values.contains(EngineSecurityThreatType.debugger), isTrue);
       });
     });
 
     group('DetectorInfoModel Edge Cases', () {
       test('should handle various detector configurations', () {
         final configs = [
-          const DetectorInfoModel(
+          const EngineDetectorInfoModel(
             name: '',
-            threatType: SecurityThreatType.unknown,
+            threatType: EngineSecurityThreatType.unknown,
             enabled: false,
             platform: '',
           ),
-          DetectorInfoModel(
+          EngineDetectorInfoModel(
             name: 'Test',
-            threatType: SecurityThreatType.frida,
+            threatType: EngineSecurityThreatType.frida,
             enabled: true,
             platform: Platform.operatingSystem,
           ),
@@ -94,16 +94,16 @@ void main() {
 
         for (final config in configs) {
           expect(config.name, isA<String>());
-          expect(config.threatType, isA<SecurityThreatType>());
+          expect(config.threatType, isA<EngineSecurityThreatType>());
           expect(config.enabled, isA<bool>());
           expect(config.platform, isA<String>());
         }
       });
 
       test('should create toString representation', () {
-        const info = DetectorInfoModel(
+        const info = EngineDetectorInfoModel(
           name: 'TestDetector',
-          threatType: SecurityThreatType.emulator,
+          threatType: EngineSecurityThreatType.emulator,
           enabled: true,
           platform: 'test_platform',
         );
@@ -125,7 +125,7 @@ void main() {
 
         expect(results, hasLength(10));
         for (final result in results) {
-          expect(result, isA<SecurityCheckModel>());
+          expect(result, isA<EngineSecurityCheckModel>());
           expect(result.confidence, greaterThan(0.0));
         }
       });
@@ -208,7 +208,7 @@ void main() {
 
     group('Memory and Resource Management', () {
       test('should properly clean up resources', () async {
-        final detectors = <ISecurityDetector>[];
+        final detectors = <IEngineSecurityDetector>[];
 
         for (var i = 0; i < 50; i++) {
           detectors.add(EngineFridaDetector());

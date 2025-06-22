@@ -1,7 +1,7 @@
 import 'package:engine_security/src/src.dart';
 
-class SecurityCheckModel {
-  const SecurityCheckModel({
+class EngineSecurityCheckModel {
+  const EngineSecurityCheckModel({
     required this.isSecure,
     required this.threatType,
     this.details,
@@ -10,25 +10,25 @@ class SecurityCheckModel {
     this.timestamp,
   });
 
-  factory SecurityCheckModel.secure({
+  factory EngineSecurityCheckModel.secure({
     final String? details,
     final String? detectionMethod,
     final double confidence = 1.0,
-  }) => SecurityCheckModel(
+  }) => EngineSecurityCheckModel(
     isSecure: true,
-    threatType: SecurityThreatType.unknown,
+    threatType: EngineSecurityThreatType.unknown,
     details: details,
     detectionMethod: detectionMethod,
     confidence: confidence,
     timestamp: DateTime.now(),
   );
 
-  factory SecurityCheckModel.threat({
-    required final SecurityThreatType threatType,
+  factory EngineSecurityCheckModel.threat({
+    required final EngineSecurityThreatType threatType,
     final String? details,
     final String? detectionMethod,
     final double confidence = 1.0,
-  }) => SecurityCheckModel(
+  }) => EngineSecurityCheckModel(
     isSecure: false,
     threatType: threatType,
     details: details,
@@ -39,7 +39,7 @@ class SecurityCheckModel {
 
   @override
   String toString() =>
-      'SecurityCheckModel('
+      'EngineSecurityCheckModel('
       'isSecure: $isSecure, '
       'threatType: $threatType, '
       'details: $details, '
@@ -49,7 +49,7 @@ class SecurityCheckModel {
       ')';
 
   final bool isSecure;
-  final SecurityThreatType threatType;
+  final EngineSecurityThreatType threatType;
   final double confidence;
   final String? details;
   final String? detectionMethod;

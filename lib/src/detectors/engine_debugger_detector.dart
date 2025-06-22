@@ -19,13 +19,13 @@ import 'package:engine_security/src/src.dart';
 /// - Debugger processes: gdb, lldb, strace, ptrace, etc.
 /// - Timing attack: Detects instrumentation by execution time
 /// - Active ADB connections: Active remote debugging
-class EngineDebuggerDetector implements ISecurityDetector {
+class EngineDebuggerDetector implements IEngineSecurityDetector {
   EngineDebuggerDetector({this.enabled = true});
 
   final bool enabled;
 
   @override
-  SecurityThreatType get threatType => SecurityThreatType.debugger;
+  EngineSecurityThreatType get threatType => EngineSecurityThreatType.debugger;
 
   @override
   String get detectorName => 'DebuggerDetector';
@@ -34,7 +34,7 @@ class EngineDebuggerDetector implements ISecurityDetector {
   bool get isAvailable => enabled;
 
   @override
-  DetectorInfoModel get detectorInfo => DetectorInfoModel(
+  EngineDetectorInfoModel get detectorInfo => EngineDetectorInfoModel(
     name: detectorName,
     threatType: threatType,
     enabled: enabled,
@@ -42,9 +42,9 @@ class EngineDebuggerDetector implements ISecurityDetector {
   );
 
   @override
-  Future<SecurityCheckModel> performCheck() async {
+  Future<EngineSecurityCheckModel> performCheck() async {
     if (!enabled) {
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'Debugger detector disabled',
         detectionMethod: 'disabled_check',
         confidence: 1.0,
@@ -59,21 +59,21 @@ class EngineDebuggerDetector implements ISecurityDetector {
       ];
 
       if (detectionMethods.isNotEmpty) {
-        return SecurityCheckModel.threat(
-          threatType: SecurityThreatType.debugger,
+        return EngineSecurityCheckModel.threat(
+          threatType: EngineSecurityThreatType.debugger,
           details: 'Debugger detected: ${detectionMethods.join(', ')}',
           detectionMethod: 'platform_specific_detection',
           confidence: 0.85,
         );
       }
 
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'No debugger detected',
         detectionMethod: 'debugger_checks',
         confidence: 0.80,
       );
     } catch (e) {
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'Debugger detection failed: $e',
         detectionMethod: 'error_handling',
         confidence: 0.50,

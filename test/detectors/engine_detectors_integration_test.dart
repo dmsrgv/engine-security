@@ -20,7 +20,7 @@ void main() {
 
         expect(results, hasLength(4));
         for (final result in results) {
-          expect(result, isA<SecurityCheckModel>());
+          expect(result, isA<EngineSecurityCheckModel>());
           expect(result.confidence, greaterThan(0.0));
           expect(result.confidence, lessThanOrEqualTo(1.0));
           expect(result.detectionMethod, isNotEmpty);
@@ -53,7 +53,7 @@ void main() {
 
         final result = await debuggerDetector.performCheck();
 
-        expect(result, isA<SecurityCheckModel>());
+        expect(result, isA<EngineSecurityCheckModel>());
         expect(result.detectionMethod, isNotEmpty);
 
         if (Platform.isAndroid || Platform.isIOS) {
@@ -68,7 +68,7 @@ void main() {
         final result = await debuggerDetector.performCheck();
         stopwatch.stop();
 
-        expect(result, isA<SecurityCheckModel>());
+        expect(result, isA<EngineSecurityCheckModel>());
         expect(stopwatch.elapsedMilliseconds, lessThan(10000));
       });
     });
@@ -82,7 +82,7 @@ void main() {
 
         expect(results, hasLength(5));
         for (final result in results) {
-          expect(result, isA<SecurityCheckModel>());
+          expect(result, isA<EngineSecurityCheckModel>());
           expect(result.confidence, greaterThan(0.0));
         }
       });
@@ -137,11 +137,11 @@ void main() {
 
     group('Threat Detection Coverage', () {
       test('should properly categorize threat types', () async {
-        final threatTypes = <SecurityThreatType, ISecurityDetector>{
-          SecurityThreatType.debugger: EngineDebuggerDetector(),
-          SecurityThreatType.emulator: EngineEmulatorDetector(),
-          SecurityThreatType.frida: EngineFridaDetector(),
-          SecurityThreatType.rootJailbreak: EngineRootDetector(),
+        final threatTypes = <EngineSecurityThreatType, IEngineSecurityDetector>{
+          EngineSecurityThreatType.debugger: EngineDebuggerDetector(),
+          EngineSecurityThreatType.emulator: EngineEmulatorDetector(),
+          EngineSecurityThreatType.frida: EngineFridaDetector(),
+          EngineSecurityThreatType.rootJailbreak: EngineRootDetector(),
         };
 
         for (final entry in threatTypes.entries) {
@@ -162,7 +162,7 @@ void main() {
         final result = await detector.performCheck();
 
         expect(result.threatType, isNotNull);
-        expect(SecurityThreatType.values, contains(result.threatType));
+        expect(EngineSecurityThreatType.values, contains(result.threatType));
       });
     });
 
@@ -174,14 +174,14 @@ void main() {
         final result = await detector.performCheck();
         stopwatch.stop();
 
-        expect(result, isA<SecurityCheckModel>());
+        expect(result, isA<EngineSecurityCheckModel>());
         expect(stopwatch.elapsedMilliseconds, lessThan(30000));
       });
 
       test('should handle rapid successive calls', () async {
         final detector = EngineEmulatorDetector();
 
-        final results = <SecurityCheckModel>[];
+        final results = <EngineSecurityCheckModel>[];
         for (var i = 0; i < 3; i++) {
           final result = await detector.performCheck();
           results.add(result);
@@ -189,7 +189,7 @@ void main() {
 
         expect(results, hasLength(3));
         for (final result in results) {
-          expect(result, isA<SecurityCheckModel>());
+          expect(result, isA<EngineSecurityCheckModel>());
         }
       });
     });

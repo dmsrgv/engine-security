@@ -1,4 +1,4 @@
-enum SecurityThreatType {
+enum EngineSecurityThreatType {
   unknown(
     displayName: 'Unknown Threat',
     description: 'Unknown security threat detected',
@@ -40,7 +40,7 @@ enum SecurityThreatType {
 
   final int severityLevel;
 
-  const SecurityThreatType({
+  const EngineSecurityThreatType({
     required this.displayName,
     required this.description,
     required this.severityLevel,

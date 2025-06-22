@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:engine_security/src/src.dart';
 
-class EngineFridaDetector implements ISecurityDetector {
+class EngineFridaDetector implements IEngineSecurityDetector {
   EngineFridaDetector({this.enabled = true});
 
   final bool enabled;
 
   @override
-  SecurityThreatType get threatType => SecurityThreatType.frida;
+  EngineSecurityThreatType get threatType => EngineSecurityThreatType.frida;
 
   @override
   String get detectorName => 'FridaDetector';
@@ -17,7 +17,7 @@ class EngineFridaDetector implements ISecurityDetector {
   bool get isAvailable => enabled;
 
   @override
-  DetectorInfoModel get detectorInfo => DetectorInfoModel(
+  EngineDetectorInfoModel get detectorInfo => EngineDetectorInfoModel(
     name: detectorName,
     threatType: threatType,
     enabled: enabled,
@@ -25,9 +25,9 @@ class EngineFridaDetector implements ISecurityDetector {
   );
 
   @override
-  Future<SecurityCheckModel> performCheck() async {
+  Future<EngineSecurityCheckModel> performCheck() async {
     if (!enabled) {
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'Frida detector disabled',
         detectionMethod: 'disabled_check',
         confidence: 1.0,
@@ -54,21 +54,21 @@ class EngineFridaDetector implements ISecurityDetector {
       }
 
       if (detected) {
-        return SecurityCheckModel.threat(
-          threatType: SecurityThreatType.frida,
+        return EngineSecurityCheckModel.threat(
+          threatType: EngineSecurityThreatType.frida,
           details: 'Frida framework detected: ${detectedMethods.join(', ')}',
           detectionMethod: 'multi_vector_detection',
           confidence: 0.95,
         );
       }
 
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'No Frida instrumentation detected',
         detectionMethod: 'performCheck: multi_vector_scan',
         confidence: 0.90,
       );
     } catch (e) {
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'Frida detection failed: $e',
         detectionMethod: 'error_handling',
         confidence: 0.50,

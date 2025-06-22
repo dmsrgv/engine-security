@@ -10,7 +10,7 @@ void main() {
     });
 
     test('should have correct threat type', () {
-      expect(detector.threatType, SecurityThreatType.gpsFake);
+      expect(detector.threatType, EngineSecurityThreatType.gpsFake);
     });
 
     test('should have correct detector name', () {
@@ -20,7 +20,7 @@ void main() {
     test('should provide detector info', () {
       final info = detector.detectorInfo;
       expect(info.name, 'GpsFakeDetector');
-      expect(info.threatType, SecurityThreatType.gpsFake);
+      expect(info.threatType, EngineSecurityThreatType.gpsFake);
       expect(info.enabled, detector.isAvailable);
     });
 
@@ -45,14 +45,14 @@ void main() {
 
     test('should perform check without errors', () async {
       final result = await detector.performCheck();
-      expect(result, isA<SecurityCheckModel>());
+      expect(result, isA<EngineSecurityCheckModel>());
       expect(result.confidence, greaterThanOrEqualTo(0.0));
       expect(result.confidence, lessThanOrEqualTo(1.0));
 
       if (result.isSecure) {
-        expect(result.threatType, SecurityThreatType.unknown);
+        expect(result.threatType, EngineSecurityThreatType.unknown);
       } else {
-        expect(result.threatType, SecurityThreatType.gpsFake);
+        expect(result.threatType, EngineSecurityThreatType.gpsFake);
       }
     });
 
@@ -67,7 +67,7 @@ void main() {
 
   group('SecurityThreatType.gpsFake', () {
     test('should have correct properties', () {
-      const threatType = SecurityThreatType.gpsFake;
+      const threatType = EngineSecurityThreatType.gpsFake;
       expect(threatType.displayName, 'GPS Fake Detection');
       expect(threatType.description, 'GPS location spoofing or fake GPS app detected');
       expect(threatType.severityLevel, 7);

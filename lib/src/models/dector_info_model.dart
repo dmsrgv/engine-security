@@ -1,7 +1,7 @@
 import 'package:engine_security/src/src.dart';
 
-class DetectorInfoModel {
-  const DetectorInfoModel({
+class EngineDetectorInfoModel {
+  const EngineDetectorInfoModel({
     required this.name,
     required this.threatType,
     required this.enabled,
@@ -10,7 +10,7 @@ class DetectorInfoModel {
 
   final String name;
 
-  final SecurityThreatType threatType;
+  final EngineSecurityThreatType threatType;
 
   final bool enabled;
 
@@ -18,5 +18,5 @@ class DetectorInfoModel {
 
   @override
   String toString() =>
-      'DetectorInfoModel(name: $name, threatType: $threatType, enabled: $enabled, platform: $platform)';
+      'EngineDetectorInfoModel(name: $name, threatType: $threatType, enabled: $enabled, platform: $platform)';
 }

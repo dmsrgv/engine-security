@@ -2,12 +2,12 @@ import 'package:engine_security/engine_security.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('SecurityCheckModel', () {
+  group('EngineSecurityCheckModel', () {
     group('Constructor', () {
       test('should create instance with all required parameters', () {
-        final model = SecurityCheckModel(
+        final model = EngineSecurityCheckModel(
           isSecure: true,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           confidence: 0.95,
           details: 'Test details',
           detectionMethod: 'Test method',
@@ -15,7 +15,7 @@ void main() {
         );
 
         expect(model.isSecure, isTrue);
-        expect(model.threatType, equals(SecurityThreatType.frida));
+        expect(model.threatType, equals(EngineSecurityThreatType.frida));
         expect(model.confidence, equals(0.95));
         expect(model.details, equals('Test details'));
         expect(model.detectionMethod, equals('Test method'));
@@ -23,13 +23,13 @@ void main() {
       });
 
       test('should create instance with default confidence', () {
-        const model = SecurityCheckModel(
+        const model = EngineSecurityCheckModel(
           isSecure: false,
-          threatType: SecurityThreatType.unknown,
+          threatType: EngineSecurityThreatType.unknown,
         );
 
         expect(model.isSecure, isFalse);
-        expect(model.threatType, equals(SecurityThreatType.unknown));
+        expect(model.threatType, equals(EngineSecurityThreatType.unknown));
         expect(model.confidence, equals(1.0));
         expect(model.details, isNull);
         expect(model.detectionMethod, isNull);
@@ -39,10 +39,10 @@ void main() {
 
     group('Factory Methods', () {
       test('secure() should create secure instance with default values', () {
-        final model = SecurityCheckModel.secure();
+        final model = EngineSecurityCheckModel.secure();
 
         expect(model.isSecure, isTrue);
-        expect(model.threatType, equals(SecurityThreatType.unknown));
+        expect(model.threatType, equals(EngineSecurityThreatType.unknown));
         expect(model.confidence, equals(1.0));
         expect(model.details, isNull);
         expect(model.detectionMethod, isNull);
@@ -50,14 +50,14 @@ void main() {
       });
 
       test('secure() should create secure instance with custom parameters', () {
-        final model = SecurityCheckModel.secure(
+        final model = EngineSecurityCheckModel.secure(
           confidence: 0.98,
           details: 'Custom secure details',
           detectionMethod: 'Custom method',
         );
 
         expect(model.isSecure, isTrue);
-        expect(model.threatType, equals(SecurityThreatType.unknown));
+        expect(model.threatType, equals(EngineSecurityThreatType.unknown));
         expect(model.confidence, equals(0.98));
         expect(model.details, equals('Custom secure details'));
         expect(model.detectionMethod, equals('Custom method'));
@@ -65,12 +65,12 @@ void main() {
       });
 
       test('threat() should create threat instance with default values', () {
-        final model = SecurityCheckModel.threat(
-          threatType: SecurityThreatType.frida,
+        final model = EngineSecurityCheckModel.threat(
+          threatType: EngineSecurityThreatType.frida,
         );
 
         expect(model.isSecure, isFalse);
-        expect(model.threatType, equals(SecurityThreatType.frida));
+        expect(model.threatType, equals(EngineSecurityThreatType.frida));
         expect(model.confidence, equals(1.0));
         expect(model.details, isNull);
         expect(model.detectionMethod, isNull);
@@ -78,15 +78,15 @@ void main() {
       });
 
       test('threat() should create threat instance with custom parameters', () {
-        final model = SecurityCheckModel.threat(
-          threatType: SecurityThreatType.emulator,
+        final model = EngineSecurityCheckModel.threat(
+          threatType: EngineSecurityThreatType.emulator,
           confidence: 0.85,
           details: 'Custom threat details',
           detectionMethod: 'Custom threat method',
         );
 
         expect(model.isSecure, isFalse);
-        expect(model.threatType, equals(SecurityThreatType.emulator));
+        expect(model.threatType, equals(EngineSecurityThreatType.emulator));
         expect(model.confidence, equals(0.85));
         expect(model.details, equals('Custom threat details'));
         expect(model.detectionMethod, equals('Custom threat method'));
@@ -96,9 +96,9 @@ void main() {
 
     group('toString', () {
       test('should return correct string representation', () {
-        final model = SecurityCheckModel(
+        final model = EngineSecurityCheckModel(
           isSecure: true,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           confidence: 0.95,
           details: 'Test details',
           detectionMethod: 'Test method',
@@ -107,9 +107,9 @@ void main() {
 
         final result = model.toString();
 
-        expect(result, contains('SecurityCheckModel'));
+        expect(result, contains('EngineSecurityCheckModel'));
         expect(result, contains('isSecure: true'));
-        expect(result, contains('threatType: SecurityThreatType.frida'));
+        expect(result, contains('threatType: EngineSecurityThreatType.frida'));
         expect(result, contains('confidence: 0.95'));
         expect(result, contains('details: Test details'));
         expect(result, contains('detectionMethod: Test method'));
@@ -117,17 +117,17 @@ void main() {
       });
 
       test('should handle null values in toString', () {
-        const model = SecurityCheckModel(
+        const model = EngineSecurityCheckModel(
           isSecure: false,
-          threatType: SecurityThreatType.unknown,
+          threatType: EngineSecurityThreatType.unknown,
           confidence: 0.5,
         );
 
         final result = model.toString();
 
-        expect(result, contains('SecurityCheckModel'));
+        expect(result, contains('EngineSecurityCheckModel'));
         expect(result, contains('isSecure: false'));
-        expect(result, contains('threatType: SecurityThreatType.unknown'));
+        expect(result, contains('threatType: EngineSecurityThreatType.unknown'));
         expect(result, contains('confidence: 0.5'));
         expect(result, contains('details: null'));
         expect(result, contains('detectionMethod: null'));
@@ -138,18 +138,18 @@ void main() {
     group('Equality', () {
       test('should be equal when all properties are same', () {
         final timestamp = DateTime(2024, 1, 1);
-        final model1 = SecurityCheckModel(
+        final model1 = EngineSecurityCheckModel(
           isSecure: true,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           confidence: 0.95,
           details: 'Test details',
           detectionMethod: 'Test method',
           timestamp: timestamp,
         );
 
-        final model2 = SecurityCheckModel(
+        final model2 = EngineSecurityCheckModel(
           isSecure: true,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           confidence: 0.95,
           details: 'Test details',
           detectionMethod: 'Test method',
@@ -161,18 +161,18 @@ void main() {
 
       test('should not be equal when properties differ', () {
         final timestamp = DateTime(2024, 1, 1);
-        final model1 = SecurityCheckModel(
+        final model1 = EngineSecurityCheckModel(
           isSecure: true,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           confidence: 0.95,
           details: 'Test details',
           detectionMethod: 'Test method',
           timestamp: timestamp,
         );
 
-        final model2 = SecurityCheckModel(
+        final model2 = EngineSecurityCheckModel(
           isSecure: false,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           confidence: 0.95,
           details: 'Test details',
           detectionMethod: 'Test method',
@@ -185,14 +185,14 @@ void main() {
 
     group('Edge Cases', () {
       test('should handle confidence boundary values', () {
-        const model1 = SecurityCheckModel(
+        const model1 = EngineSecurityCheckModel(
           isSecure: true,
-          threatType: SecurityThreatType.unknown,
+          threatType: EngineSecurityThreatType.unknown,
           confidence: 0.0,
         );
-        const model2 = SecurityCheckModel(
+        const model2 = EngineSecurityCheckModel(
           isSecure: true,
-          threatType: SecurityThreatType.unknown,
+          threatType: EngineSecurityThreatType.unknown,
           confidence: 1.0,
         );
 
@@ -201,9 +201,9 @@ void main() {
       });
 
       test('should handle empty string details', () {
-        const model = SecurityCheckModel(
+        const model = EngineSecurityCheckModel(
           isSecure: true,
-          threatType: SecurityThreatType.unknown,
+          threatType: EngineSecurityThreatType.unknown,
           confidence: 0.5,
           details: '',
         );
@@ -213,9 +213,9 @@ void main() {
 
       test('should handle very long details string', () {
         final longDetails = 'A' * 1000;
-        final model = SecurityCheckModel(
+        final model = EngineSecurityCheckModel(
           isSecure: true,
-          threatType: SecurityThreatType.unknown,
+          threatType: EngineSecurityThreatType.unknown,
           confidence: 0.5,
           details: longDetails,
         );
@@ -225,8 +225,8 @@ void main() {
       });
 
       test('should handle all threat types', () {
-        for (final threatType in SecurityThreatType.values) {
-          final model = SecurityCheckModel(
+        for (final threatType in EngineSecurityThreatType.values) {
+          final model = EngineSecurityCheckModel(
             isSecure: false,
             threatType: threatType,
           );

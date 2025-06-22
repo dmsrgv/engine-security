@@ -149,7 +149,7 @@ class SecurityCard extends StatelessWidget {
           _buildResultRow(context, 'Método:', testResult!.result.detectionMethod ?? 'Não especificado'),
           const SizedBox(height: 8),
           _buildResultRow(context, 'Tempo:', '${testResult!.executionTime.inMilliseconds}ms'),
-          if (testResult!.result.threatType != SecurityThreatType.unknown) ...[
+          if (testResult!.result.threatType != EngineSecurityThreatType.unknown) ...[
             const SizedBox(height: 8),
             _buildResultRow(context, 'Severidade:', '${testResult!.result.threatType.severityLevel}/10'),
           ],

@@ -4,13 +4,13 @@ import 'dart:io';
 
 import 'package:engine_security/src/src.dart';
 
-class EngineRootDetector implements ISecurityDetector {
+class EngineRootDetector implements IEngineSecurityDetector {
   EngineRootDetector({this.enabled = true});
 
   final bool enabled;
 
   @override
-  SecurityThreatType get threatType => SecurityThreatType.rootJailbreak;
+  EngineSecurityThreatType get threatType => EngineSecurityThreatType.rootJailbreak;
 
   @override
   String get detectorName => 'RootDetector';
@@ -19,7 +19,7 @@ class EngineRootDetector implements ISecurityDetector {
   bool get isAvailable => enabled;
 
   @override
-  DetectorInfoModel get detectorInfo => DetectorInfoModel(
+  EngineDetectorInfoModel get detectorInfo => EngineDetectorInfoModel(
     name: detectorName,
     threatType: threatType,
     enabled: enabled,
@@ -27,9 +27,9 @@ class EngineRootDetector implements ISecurityDetector {
   );
 
   @override
-  Future<SecurityCheckModel> performCheck() async {
+  Future<EngineSecurityCheckModel> performCheck() async {
     if (!enabled) {
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'Root detector disabled',
         detectionMethod: 'disabled_check',
         confidence: 1.0,
@@ -43,21 +43,21 @@ class EngineRootDetector implements ISecurityDetector {
       ];
 
       if (detectionMethods.isNotEmpty) {
-        return SecurityCheckModel.threat(
-          threatType: SecurityThreatType.rootJailbreak,
+        return EngineSecurityCheckModel.threat(
+          threatType: EngineSecurityThreatType.rootJailbreak,
           details: 'Root/Jailbreak detected: ${detectionMethods.join(', ')}',
           detectionMethod: 'platform_specific_checks',
           confidence: 0.90,
         );
       }
 
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'No root/jailbreak detected',
         detectionMethod: 'platform_checks',
         confidence: 0.85,
       );
     } catch (e) {
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'Root detection failed: $e',
         detectionMethod: 'error_handling',
         confidence: 0.50,

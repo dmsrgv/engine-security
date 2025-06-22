@@ -1,17 +1,17 @@
 import 'package:engine_security/engine_security.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class MockSecurityDetector implements ISecurityDetector {
-  final SecurityCheckModel _mockResult;
-  final DetectorInfoModel _mockDetectorInfo;
-  final SecurityThreatType _threatType;
+class MockSecurityDetector implements IEngineSecurityDetector {
+  final EngineSecurityCheckModel _mockResult;
+  final EngineDetectorInfoModel _mockDetectorInfo;
+  final EngineSecurityThreatType _threatType;
   final String _detectorName;
   final bool _isAvailable;
 
   MockSecurityDetector({
-    required final SecurityCheckModel mockResult,
-    required final DetectorInfoModel mockDetectorInfo,
-    required final SecurityThreatType threatType,
+    required final EngineSecurityCheckModel mockResult,
+    required final EngineDetectorInfoModel mockDetectorInfo,
+    required final EngineSecurityThreatType threatType,
     required final String detectorName,
     final bool isAvailable = true,
   }) : _mockResult = mockResult,
@@ -21,13 +21,13 @@ class MockSecurityDetector implements ISecurityDetector {
        _isAvailable = isAvailable;
 
   @override
-  Future<SecurityCheckModel> performCheck() async => _mockResult;
+  Future<EngineSecurityCheckModel> performCheck() async => _mockResult;
 
   @override
-  DetectorInfoModel get detectorInfo => _mockDetectorInfo;
+  EngineDetectorInfoModel get detectorInfo => _mockDetectorInfo;
 
   @override
-  SecurityThreatType get threatType => _threatType;
+  EngineSecurityThreatType get threatType => _threatType;
 
   @override
   String get detectorName => _detectorName;
@@ -37,27 +37,27 @@ class MockSecurityDetector implements ISecurityDetector {
 }
 
 void main() {
-  group('ISecurityDetector', () {
+  group('IEngineSecurityDetector', () {
     late MockSecurityDetector mockDetector;
-    late SecurityCheckModel secureResult;
-    late SecurityCheckModel threatResult;
-    late DetectorInfoModel detectorInfo;
+    late EngineSecurityCheckModel secureResult;
+    late EngineSecurityCheckModel threatResult;
+    late EngineDetectorInfoModel detectorInfo;
 
     setUp(() {
-      secureResult = SecurityCheckModel.secure();
-      threatResult = SecurityCheckModel.threat(
-        threatType: SecurityThreatType.frida,
+      secureResult = EngineSecurityCheckModel.secure();
+      threatResult = EngineSecurityCheckModel.threat(
+        threatType: EngineSecurityThreatType.frida,
       );
-      detectorInfo = const DetectorInfoModel(
+      detectorInfo = const EngineDetectorInfoModel(
         name: 'Mock Detector',
-        threatType: SecurityThreatType.frida,
+        threatType: EngineSecurityThreatType.frida,
         enabled: true,
         platform: 'Test',
       );
       mockDetector = MockSecurityDetector(
         mockResult: secureResult,
         mockDetectorInfo: detectorInfo,
-        threatType: SecurityThreatType.frida,
+        threatType: EngineSecurityThreatType.frida,
         detectorName: 'Mock Detector',
       );
     });
@@ -65,21 +65,21 @@ void main() {
     group('Interface Contract', () {
       test('should implement performCheck method', () async {
         final result = await mockDetector.performCheck();
-        expect(result, isA<SecurityCheckModel>());
+        expect(result, isA<EngineSecurityCheckModel>());
         expect(result.isSecure, isTrue);
       });
 
       test('should implement detectorInfo getter', () {
         final info = mockDetector.detectorInfo;
-        expect(info, isA<DetectorInfoModel>());
+        expect(info, isA<EngineDetectorInfoModel>());
         expect(info.name, equals('Mock Detector'));
-        expect(info.threatType, equals(SecurityThreatType.frida));
+        expect(info.threatType, equals(EngineSecurityThreatType.frida));
         expect(info.enabled, isTrue);
         expect(info.platform, equals('Test'));
       });
 
       test('should implement threatType getter', () {
-        expect(mockDetector.threatType, equals(SecurityThreatType.frida));
+        expect(mockDetector.threatType, equals(EngineSecurityThreatType.frida));
       });
 
       test('should implement detectorName getter', () {
@@ -92,23 +92,23 @@ void main() {
     });
 
     group('Return Types', () {
-      test('performCheck should return Future<SecurityCheckModel>', () async {
+      test('performCheck should return Future<EngineSecurityCheckModel>', () async {
         final result = mockDetector.performCheck();
-        expect(result, isA<Future<SecurityCheckModel>>());
+        expect(result, isA<Future<EngineSecurityCheckModel>>());
 
         final resolvedResult = await result;
-        expect(resolvedResult, isA<SecurityCheckModel>());
+        expect(resolvedResult, isA<EngineSecurityCheckModel>());
       });
 
       test('detectorInfo should return DetectorInfoModel', () {
         final info = mockDetector.detectorInfo;
-        expect(info, isA<DetectorInfoModel>());
-        expect(info.runtimeType, equals(DetectorInfoModel));
+        expect(info, isA<EngineDetectorInfoModel>());
+        expect(info.runtimeType, equals(EngineDetectorInfoModel));
       });
 
       test('threatType should return SecurityThreatType', () {
         final threatType = mockDetector.threatType;
-        expect(threatType, isA<SecurityThreatType>());
+        expect(threatType, isA<EngineSecurityThreatType>());
       });
 
       test('detectorName should return String', () {
@@ -128,33 +128,33 @@ void main() {
         final detector = MockSecurityDetector(
           mockResult: secureResult,
           mockDetectorInfo: detectorInfo,
-          threatType: SecurityThreatType.unknown,
+          threatType: EngineSecurityThreatType.unknown,
           detectorName: 'Secure Detector',
         );
         final result = await detector.performCheck();
 
         expect(result.isSecure, isTrue);
-        expect(result.threatType, equals(SecurityThreatType.unknown));
+        expect(result.threatType, equals(EngineSecurityThreatType.unknown));
       });
 
       test('should return threat result when configured', () async {
         final detector = MockSecurityDetector(
           mockResult: threatResult,
           mockDetectorInfo: detectorInfo,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           detectorName: 'Frida Detector',
         );
         final result = await detector.performCheck();
 
         expect(result.isSecure, isFalse);
-        expect(result.threatType, equals(SecurityThreatType.frida));
+        expect(result.threatType, equals(EngineSecurityThreatType.frida));
       });
 
       test('should return consistent detector info', () {
         final detector = MockSecurityDetector(
           mockResult: secureResult,
           mockDetectorInfo: detectorInfo,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           detectorName: 'Test Detector',
         );
 
@@ -166,7 +166,7 @@ void main() {
         final detector = MockSecurityDetector(
           mockResult: secureResult,
           mockDetectorInfo: detectorInfo,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           detectorName: 'Unavailable Detector',
           isAvailable: false,
         );
@@ -176,11 +176,11 @@ void main() {
     });
 
     group('Interface Polymorphism', () {
-      test('should work as ISecurityDetector type', () async {
-        final ISecurityDetector detector = MockSecurityDetector(
+      test('should work as IEngineSecurityDetector type', () async {
+        final IEngineSecurityDetector detector = MockSecurityDetector(
           mockResult: secureResult,
           mockDetectorInfo: detectorInfo,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           detectorName: 'Polymorphic Detector',
         );
 
@@ -190,25 +190,25 @@ void main() {
         final name = detector.detectorName;
         final available = detector.isAvailable;
 
-        expect(result, isA<SecurityCheckModel>());
-        expect(info, isA<DetectorInfoModel>());
-        expect(threatType, isA<SecurityThreatType>());
+        expect(result, isA<EngineSecurityCheckModel>());
+        expect(info, isA<EngineDetectorInfoModel>());
+        expect(threatType, isA<EngineSecurityThreatType>());
         expect(name, isA<String>());
         expect(available, isA<bool>());
       });
 
       test('should handle different detector implementations', () async {
-        final detectors = <ISecurityDetector>[
+        final detectors = <IEngineSecurityDetector>[
           MockSecurityDetector(
             mockResult: secureResult,
             mockDetectorInfo: detectorInfo,
-            threatType: SecurityThreatType.unknown,
+            threatType: EngineSecurityThreatType.unknown,
             detectorName: 'Detector 1',
           ),
           MockSecurityDetector(
             mockResult: threatResult,
             mockDetectorInfo: detectorInfo,
-            threatType: SecurityThreatType.frida,
+            threatType: EngineSecurityThreatType.frida,
             detectorName: 'Detector 2',
           ),
         ];
@@ -217,9 +217,9 @@ void main() {
           final result = await detector.performCheck();
           final info = detector.detectorInfo;
 
-          expect(result, isA<SecurityCheckModel>());
-          expect(info, isA<DetectorInfoModel>());
-          expect(detector, isA<ISecurityDetector>());
+          expect(result, isA<EngineSecurityCheckModel>());
+          expect(info, isA<EngineDetectorInfoModel>());
+          expect(detector, isA<IEngineSecurityDetector>());
         }
       });
     });
@@ -235,7 +235,7 @@ void main() {
 
         expect(results.length, equals(5));
         for (final result in results) {
-          expect(result, isA<SecurityCheckModel>());
+          expect(result, isA<EngineSecurityCheckModel>());
           expect(result.isSecure, isTrue);
         }
       });
@@ -244,13 +244,13 @@ void main() {
         final detector1 = MockSecurityDetector(
           mockResult: secureResult,
           mockDetectorInfo: detectorInfo,
-          threatType: SecurityThreatType.unknown,
+          threatType: EngineSecurityThreatType.unknown,
           detectorName: 'Detector 1',
         );
         final detector2 = MockSecurityDetector(
           mockResult: threatResult,
           mockDetectorInfo: detectorInfo,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           detectorName: 'Detector 2',
         );
 
@@ -286,17 +286,17 @@ void main() {
 
     group('Real-world Usage Patterns', () {
       test('should work in detector factory pattern', () async {
-        ISecurityDetector createDetector(
-          final SecurityThreatType threatType,
+        IEngineSecurityDetector createDetector(
+          final EngineSecurityThreatType threatType,
           final String name,
         ) {
-          final info = DetectorInfoModel(
+          final info = EngineDetectorInfoModel(
             name: name,
             threatType: threatType,
             enabled: true,
             platform: 'Test',
           );
-          final result = SecurityCheckModel.threat(threatType: threatType);
+          final result = EngineSecurityCheckModel.threat(threatType: threatType);
           return MockSecurityDetector(
             mockResult: result,
             mockDetectorInfo: info,
@@ -305,40 +305,40 @@ void main() {
           );
         }
 
-        final fridaDetector = createDetector(SecurityThreatType.frida, 'Frida Detector');
-        final emulatorDetector = createDetector(SecurityThreatType.emulator, 'Emulator Detector');
+        final fridaDetector = createDetector(EngineSecurityThreatType.frida, 'Frida Detector');
+        final emulatorDetector = createDetector(EngineSecurityThreatType.emulator, 'Emulator Detector');
 
         final fridaResult = await fridaDetector.performCheck();
         final emulatorResult = await emulatorDetector.performCheck();
 
-        expect(fridaResult.threatType, equals(SecurityThreatType.frida));
-        expect(emulatorResult.threatType, equals(SecurityThreatType.emulator));
+        expect(fridaResult.threatType, equals(EngineSecurityThreatType.frida));
+        expect(emulatorResult.threatType, equals(EngineSecurityThreatType.emulator));
         expect(fridaDetector.detectorName, equals('Frida Detector'));
         expect(emulatorDetector.detectorName, equals('Emulator Detector'));
       });
 
       test('should work in security scanner pattern', () async {
-        final detectors = <ISecurityDetector>[
+        final detectors = <IEngineSecurityDetector>[
           MockSecurityDetector(
-            mockResult: SecurityCheckModel.secure(),
-            mockDetectorInfo: const DetectorInfoModel(
+            mockResult: EngineSecurityCheckModel.secure(),
+            mockDetectorInfo: const EngineDetectorInfoModel(
               name: 'Secure Detector',
-              threatType: SecurityThreatType.unknown,
+              threatType: EngineSecurityThreatType.unknown,
               enabled: true,
               platform: 'Test',
             ),
-            threatType: SecurityThreatType.unknown,
+            threatType: EngineSecurityThreatType.unknown,
             detectorName: 'Secure Detector',
           ),
           MockSecurityDetector(
-            mockResult: SecurityCheckModel.threat(threatType: SecurityThreatType.frida),
-            mockDetectorInfo: const DetectorInfoModel(
+            mockResult: EngineSecurityCheckModel.threat(threatType: EngineSecurityThreatType.frida),
+            mockDetectorInfo: const EngineDetectorInfoModel(
               name: 'Frida Detector',
-              threatType: SecurityThreatType.frida,
+              threatType: EngineSecurityThreatType.frida,
               enabled: true,
               platform: 'Test',
             ),
-            threatType: SecurityThreatType.frida,
+            threatType: EngineSecurityThreatType.frida,
             detectorName: 'Frida Detector',
           ),
         ];
@@ -349,7 +349,7 @@ void main() {
 
         final threats = results.where((final result) => !result.isSecure).toList();
         expect(threats.length, equals(1));
-        expect(threats.first.threatType, equals(SecurityThreatType.frida));
+        expect(threats.first.threatType, equals(EngineSecurityThreatType.frida));
 
         final availableDetectors = detectors.where((final d) => d.isAvailable).toList();
         expect(availableDetectors.length, equals(2));
@@ -358,22 +358,22 @@ void main() {
   });
 }
 
-class MockSecurityDetectorWithError implements ISecurityDetector {
+class MockSecurityDetectorWithError implements IEngineSecurityDetector {
   @override
-  Future<SecurityCheckModel> performCheck() async {
+  Future<EngineSecurityCheckModel> performCheck() async {
     throw Exception('Mock error for testing');
   }
 
   @override
-  DetectorInfoModel get detectorInfo => const DetectorInfoModel(
+  EngineDetectorInfoModel get detectorInfo => const EngineDetectorInfoModel(
     name: 'Error Detector',
-    threatType: SecurityThreatType.unknown,
+    threatType: EngineSecurityThreatType.unknown,
     enabled: true,
     platform: 'Test',
   );
 
   @override
-  SecurityThreatType get threatType => SecurityThreatType.unknown;
+  EngineSecurityThreatType get threatType => EngineSecurityThreatType.unknown;
 
   @override
   String get detectorName => 'Error Detector';
@@ -382,17 +382,17 @@ class MockSecurityDetectorWithError implements ISecurityDetector {
   bool get isAvailable => true;
 }
 
-class MockSecurityDetectorWithNullInfo implements ISecurityDetector {
+class MockSecurityDetectorWithNullInfo implements IEngineSecurityDetector {
   @override
-  Future<SecurityCheckModel> performCheck() async => SecurityCheckModel.secure();
+  Future<EngineSecurityCheckModel> performCheck() async => EngineSecurityCheckModel.secure();
 
   @override
-  DetectorInfoModel get detectorInfo {
+  EngineDetectorInfoModel get detectorInfo {
     throw Exception('Info not available');
   }
 
   @override
-  SecurityThreatType get threatType => SecurityThreatType.unknown;
+  EngineSecurityThreatType get threatType => EngineSecurityThreatType.unknown;
 
   @override
   String get detectorName => 'Null Info Detector';

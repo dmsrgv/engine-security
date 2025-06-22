@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:engine_security/src/src.dart';
 
-class EngineEmulatorDetector implements ISecurityDetector {
+class EngineEmulatorDetector implements IEngineSecurityDetector {
   EngineEmulatorDetector({this.enabled = true});
 
   final bool enabled;
 
   @override
-  SecurityThreatType get threatType => SecurityThreatType.emulator;
+  EngineSecurityThreatType get threatType => EngineSecurityThreatType.emulator;
 
   @override
   String get detectorName => 'EmulatorDetector';
@@ -18,7 +18,7 @@ class EngineEmulatorDetector implements ISecurityDetector {
   bool get isAvailable => enabled;
 
   @override
-  DetectorInfoModel get detectorInfo => DetectorInfoModel(
+  EngineDetectorInfoModel get detectorInfo => EngineDetectorInfoModel(
     name: detectorName,
     threatType: threatType,
     enabled: enabled,
@@ -26,9 +26,9 @@ class EngineEmulatorDetector implements ISecurityDetector {
   );
 
   @override
-  Future<SecurityCheckModel> performCheck() async {
+  Future<EngineSecurityCheckModel> performCheck() async {
     if (!enabled) {
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'Emulator detector disabled',
         detectionMethod: 'disabled_check',
         confidence: 1.0,
@@ -41,13 +41,13 @@ class EngineEmulatorDetector implements ISecurityDetector {
     ];
 
     return detectionMethods.isNotEmpty
-        ? SecurityCheckModel.threat(
-            threatType: SecurityThreatType.emulator,
+        ? EngineSecurityCheckModel.threat(
+            threatType: EngineSecurityThreatType.emulator,
             details: 'Emulator/Simulator detected: ${detectionMethods.join(', ')}',
             detectionMethod: 'platform_specific_checks',
             confidence: 0.85,
           )
-        : SecurityCheckModel.secure(
+        : EngineSecurityCheckModel.secure(
             details: 'No emulator/simulator detected',
             detectionMethod: 'platform_checks',
             confidence: 0.80,

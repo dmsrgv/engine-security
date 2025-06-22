@@ -32,7 +32,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final EngineGpsFakeDetector _gpsDetector = EngineGpsFakeDetector();
-  SecurityCheckModel? _lastResult;
+  EngineSecurityCheckModel? _lastResult;
   bool _isChecking = false;
 
   Future<void> _checkGpsFake() async {
@@ -48,8 +48,8 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     } catch (e) {
       setState(() {
-        _lastResult = SecurityCheckModel.threat(
-          threatType: SecurityThreatType.gpsFake,
+        _lastResult = EngineSecurityCheckModel.threat(
+          threatType: EngineSecurityThreatType.gpsFake,
           details: 'Erro ao verificar GPS Fake: $e',
           detectionMethod: 'Error Handler',
         );

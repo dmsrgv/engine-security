@@ -5,22 +5,22 @@ void main() {
   group('DetectorInfoModel', () {
     group('Constructor', () {
       test('should create instance with all parameters', () {
-        const model = DetectorInfoModel(
+        const model = EngineDetectorInfoModel(
           name: 'Test Detector',
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           enabled: true,
           platform: 'Android',
         );
 
         expect(model.name, equals('Test Detector'));
-        expect(model.threatType, equals(SecurityThreatType.frida));
+        expect(model.threatType, equals(EngineSecurityThreatType.frida));
         expect(model.enabled, isTrue);
         expect(model.platform, equals('Android'));
       });
 
       test('should create instance with different threat types', () {
-        for (final threatType in SecurityThreatType.values) {
-          final model = DetectorInfoModel(
+        for (final threatType in EngineSecurityThreatType.values) {
+          final model = EngineDetectorInfoModel(
             name: 'Test Detector',
             threatType: threatType,
             enabled: false,
@@ -37,18 +37,18 @@ void main() {
 
     group('toString', () {
       test('should return correct string representation', () {
-        const model = DetectorInfoModel(
+        const model = EngineDetectorInfoModel(
           name: 'Frida Detector',
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           enabled: true,
           platform: 'Android',
         );
 
         final result = model.toString();
 
-        expect(result, contains('DetectorInfoModel'));
+        expect(result, contains('EngineDetectorInfoModel'));
         expect(result, contains('name: Frida Detector'));
-        expect(result, contains('threatType: SecurityThreatType.frida'));
+        expect(result, contains('threatType: EngineSecurityThreatType.frida'));
         expect(result, contains('enabled: true'));
         expect(result, contains('platform: Android'));
       });
@@ -57,9 +57,9 @@ void main() {
         final platforms = ['Android', 'iOS', 'Windows', 'macOS', 'Linux'];
 
         for (final platform in platforms) {
-          final model = DetectorInfoModel(
+          final model = EngineDetectorInfoModel(
             name: 'Test Detector',
-            threatType: SecurityThreatType.unknown,
+            threatType: EngineSecurityThreatType.unknown,
             enabled: false,
             platform: platform,
           );
@@ -72,16 +72,16 @@ void main() {
 
     group('Equality', () {
       test('should be equal when all properties are same', () {
-        const model1 = DetectorInfoModel(
+        const model1 = EngineDetectorInfoModel(
           name: 'Test Detector',
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           enabled: true,
           platform: 'Android',
         );
 
-        const model2 = DetectorInfoModel(
+        const model2 = EngineDetectorInfoModel(
           name: 'Test Detector',
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           enabled: true,
           platform: 'Android',
         );
@@ -90,16 +90,16 @@ void main() {
       });
 
       test('should not be equal when properties differ', () {
-        const model1 = DetectorInfoModel(
+        const model1 = EngineDetectorInfoModel(
           name: 'Test Detector',
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           enabled: true,
           platform: 'Android',
         );
 
-        const model2 = DetectorInfoModel(
+        const model2 = EngineDetectorInfoModel(
           name: 'Different Detector',
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           enabled: true,
           platform: 'Android',
         );
@@ -110,25 +110,25 @@ void main() {
 
     group('Edge Cases', () {
       test('should handle empty strings', () {
-        const model = DetectorInfoModel(
+        const model = EngineDetectorInfoModel(
           name: '',
-          threatType: SecurityThreatType.unknown,
+          threatType: EngineSecurityThreatType.unknown,
           enabled: false,
           platform: '',
         );
 
         expect(model.name, equals(''));
         expect(model.platform, equals(''));
-        expect(model.threatType, equals(SecurityThreatType.unknown));
+        expect(model.threatType, equals(EngineSecurityThreatType.unknown));
         expect(model.enabled, isFalse);
       });
 
       test('should handle very long strings', () {
         final longName = 'A' * 1000;
         final longPlatform = 'B' * 500;
-        final model = DetectorInfoModel(
+        final model = EngineDetectorInfoModel(
           name: longName,
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           enabled: true,
           platform: longPlatform,
         );
@@ -140,9 +140,9 @@ void main() {
       });
 
       test('should handle special characters', () {
-        const model = DetectorInfoModel(
+        const model = EngineDetectorInfoModel(
           name: 'Test/Detector-2024_v1.0',
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           enabled: true,
           platform: 'Android-API30+',
         );
@@ -152,9 +152,9 @@ void main() {
       });
 
       test('should handle unicode characters', () {
-        const model = DetectorInfoModel(
+        const model = EngineDetectorInfoModel(
           name: '测试检测器',
-          threatType: SecurityThreatType.frida,
+          threatType: EngineSecurityThreatType.frida,
           enabled: true,
           platform: 'Андроид',
         );
@@ -164,16 +164,16 @@ void main() {
       });
 
       test('should handle all boolean values for enabled', () {
-        const model1 = DetectorInfoModel(
+        const model1 = EngineDetectorInfoModel(
           name: 'Test',
-          threatType: SecurityThreatType.unknown,
+          threatType: EngineSecurityThreatType.unknown,
           enabled: true,
           platform: 'Test',
         );
 
-        const model2 = DetectorInfoModel(
+        const model2 = EngineDetectorInfoModel(
           name: 'Test',
-          threatType: SecurityThreatType.unknown,
+          threatType: EngineSecurityThreatType.unknown,
           enabled: false,
           platform: 'Test',
         );
@@ -185,22 +185,22 @@ void main() {
 
     group('Properties', () {
       test('should maintain immutability', () {
-        const model = DetectorInfoModel(
+        const model = EngineDetectorInfoModel(
           name: 'Original Name',
-          threatType: SecurityThreatType.debugger,
+          threatType: EngineSecurityThreatType.debugger,
           enabled: true,
           platform: 'iOS',
         );
 
         expect(model.name, equals('Original Name'));
-        expect(model.threatType, equals(SecurityThreatType.debugger));
+        expect(model.threatType, equals(EngineSecurityThreatType.debugger));
         expect(model.enabled, isTrue);
         expect(model.platform, equals('iOS'));
       });
 
       test('should handle all threat types', () {
-        for (final threatType in SecurityThreatType.values) {
-          final model = DetectorInfoModel(
+        for (final threatType in EngineSecurityThreatType.values) {
+          final model = EngineDetectorInfoModel(
             name: 'Test Detector',
             threatType: threatType,
             enabled: true,

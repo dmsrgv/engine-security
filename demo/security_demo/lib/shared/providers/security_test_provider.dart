@@ -14,7 +14,7 @@ class SecurityTestNotifier extends StateNotifier<Map<String, DetectorTestResult?
       ...state,
       detectorName: DetectorTestResult(
         detectorName: detectorName,
-        result: SecurityCheckModel.secure(details: 'Preparando teste...'),
+        result: EngineSecurityCheckModel.secure(details: 'Preparando teste...'),
         timestamp: DateTime.now(),
         executionTime: Duration.zero,
         isRunning: true,
@@ -31,7 +31,7 @@ class SecurityTestNotifier extends StateNotifier<Map<String, DetectorTestResult?
             ...state,
             detectorName: DetectorTestResult(
               detectorName: detectorName,
-              result: SecurityCheckModel.secure(
+              result: EngineSecurityCheckModel.secure(
                 details:
                     'Permissão de localização necessária. Vá em Configurações > Apps > Security Demo > Permissões e habilite Localização.',
                 confidence: 0.0,
@@ -48,7 +48,7 @@ class SecurityTestNotifier extends StateNotifier<Map<String, DetectorTestResult?
         await Future.delayed(const Duration(milliseconds: 500));
       }
 
-      late ISecurityDetector detector;
+      late IEngineSecurityDetector detector;
 
       switch (detectorName) {
         case 'Frida':
@@ -94,7 +94,7 @@ class SecurityTestNotifier extends StateNotifier<Map<String, DetectorTestResult?
         ...state,
         detectorName: DetectorTestResult(
           detectorName: detectorName,
-          result: SecurityCheckModel.secure(details: 'Erro no teste: $e', confidence: 0.0),
+          result: EngineSecurityCheckModel.secure(details: 'Erro no teste: $e', confidence: 0.0),
           timestamp: DateTime.now(),
           executionTime: stopwatch.elapsed,
           isRunning: false,

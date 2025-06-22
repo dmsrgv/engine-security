@@ -28,7 +28,7 @@ void main() {
       });
 
       test('should have correct threat type', () {
-        expect(detector.threatType, equals(SecurityThreatType.debugger));
+        expect(detector.threatType, equals(EngineSecurityThreatType.debugger));
       });
 
       test('should have correct detector name', () {
@@ -46,7 +46,7 @@ void main() {
         final info = detector.detectorInfo;
 
         expect(info.name, equals('DebuggerDetector'));
-        expect(info.threatType, equals(SecurityThreatType.debugger));
+        expect(info.threatType, equals(EngineSecurityThreatType.debugger));
         expect(info.enabled, isTrue);
         expect(info.platform, equals(Platform.operatingSystem));
       });
@@ -55,7 +55,7 @@ void main() {
         final info = disabledDetector.detectorInfo;
 
         expect(info.name, equals('DebuggerDetector'));
-        expect(info.threatType, equals(SecurityThreatType.debugger));
+        expect(info.threatType, equals(EngineSecurityThreatType.debugger));
         expect(info.enabled, isFalse);
         expect(info.platform, equals(Platform.operatingSystem));
       });
@@ -74,7 +74,7 @@ void main() {
       test('should perform security check when enabled', () async {
         final result = await detector.performCheck();
 
-        expect(result, isA<SecurityCheckModel>());
+        expect(result, isA<EngineSecurityCheckModel>());
         expect(result.confidence, greaterThan(0.0));
         expect(result.detectionMethod, isNotEmpty);
         expect(result.details, isNotEmpty);
@@ -94,7 +94,7 @@ void main() {
         final result = await detector.performCheck();
 
         if (!result.isSecure) {
-          expect(result.threatType, equals(SecurityThreatType.debugger));
+          expect(result.threatType, equals(EngineSecurityThreatType.debugger));
           expect(result.details, contains('Debugger detected'));
           expect(result.detectionMethod, equals('platform_specific_detection'));
           expect(result.confidence, equals(0.85));
@@ -106,20 +106,20 @@ void main() {
       test('should handle Android detection methods', () async {
         if (Platform.isAndroid) {
           final result = await detector.performCheck();
-          expect(result, isA<SecurityCheckModel>());
+          expect(result, isA<EngineSecurityCheckModel>());
         }
       });
 
       test('should handle iOS detection methods', () async {
         if (Platform.isIOS) {
           final result = await detector.performCheck();
-          expect(result, isA<SecurityCheckModel>());
+          expect(result, isA<EngineSecurityCheckModel>());
         }
       });
 
       test('should handle timing attack detection', () async {
         final result = await detector.performCheck();
-        expect(result, isA<SecurityCheckModel>());
+        expect(result, isA<EngineSecurityCheckModel>());
         expect(result.confidence, greaterThan(0.0));
       });
     });
@@ -128,7 +128,7 @@ void main() {
       test('should handle exceptions gracefully', () async {
         final result = await detector.performCheck();
 
-        expect(result, isA<SecurityCheckModel>());
+        expect(result, isA<EngineSecurityCheckModel>());
         expect(result.confidence, greaterThan(0.0));
       });
 
@@ -167,19 +167,19 @@ void main() {
     });
 
     group('Interface Compliance', () {
-      test('should implement ISecurityDetector interface', () {
-        expect(detector, isA<ISecurityDetector>());
+      test('should implement IEngineSecurityDetector interface', () {
+        expect(detector, isA<IEngineSecurityDetector>());
       });
 
       test('should have all required interface methods', () {
-        expect(detector.threatType, isA<SecurityThreatType>());
+        expect(detector.threatType, isA<EngineSecurityThreatType>());
         expect(detector.detectorName, isA<String>());
         expect(detector.isAvailable, isA<bool>());
-        expect(detector.detectorInfo, isA<DetectorInfoModel>());
+        expect(detector.detectorInfo, isA<EngineDetectorInfoModel>());
       });
 
-      test('should return Future<SecurityCheckModel> from performCheck', () {
-        expect(detector.performCheck(), isA<Future<SecurityCheckModel>>());
+      test('should return Future<EngineSecurityCheckModel> from performCheck', () {
+        expect(detector.performCheck(), isA<Future<EngineSecurityCheckModel>>());
       });
     });
   });

@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class EngineGpsFakeDetector implements ISecurityDetector {
+class EngineGpsFakeDetector implements IEngineSecurityDetector {
   EngineGpsFakeDetector({this.enabled = true});
 
   final bool enabled;
@@ -44,7 +44,7 @@ class EngineGpsFakeDetector implements ISecurityDetector {
   ];
 
   @override
-  SecurityThreatType get threatType => SecurityThreatType.gpsFake;
+  EngineSecurityThreatType get threatType => EngineSecurityThreatType.gpsFake;
 
   @override
   String get detectorName => 'GpsFakeDetector';
@@ -53,7 +53,7 @@ class EngineGpsFakeDetector implements ISecurityDetector {
   bool get isAvailable => enabled;
 
   @override
-  DetectorInfoModel get detectorInfo => DetectorInfoModel(
+  EngineDetectorInfoModel get detectorInfo => EngineDetectorInfoModel(
     name: detectorName,
     threatType: threatType,
     enabled: enabled,
@@ -61,9 +61,9 @@ class EngineGpsFakeDetector implements ISecurityDetector {
   );
 
   @override
-  Future<SecurityCheckModel> performCheck() async {
+  Future<EngineSecurityCheckModel> performCheck() async {
     if (!enabled) {
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'GPS fake detector disabled',
         detectionMethod: 'disabled_check',
         confidence: 1.0,
@@ -77,21 +77,21 @@ class EngineGpsFakeDetector implements ISecurityDetector {
       ];
 
       if (detectionMethods.isNotEmpty) {
-        return SecurityCheckModel.threat(
-          threatType: SecurityThreatType.gpsFake,
+        return EngineSecurityCheckModel.threat(
+          threatType: EngineSecurityThreatType.gpsFake,
           details: 'GPS fake detected: ${detectionMethods.join(', ')}',
           detectionMethod: 'platform_specific_checks',
           confidence: 0.90,
         );
       }
 
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'No GPS manipulation detected',
         detectionMethod: 'platform_checks',
         confidence: 0.85,
       );
     } catch (e) {
-      return SecurityCheckModel.secure(
+      return EngineSecurityCheckModel.secure(
         details: 'GPS fake detection failed: $e',
         detectionMethod: 'error_handling',
         confidence: 0.50,

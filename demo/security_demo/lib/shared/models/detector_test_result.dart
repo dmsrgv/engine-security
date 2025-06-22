@@ -2,7 +2,7 @@ import 'package:engine_security/engine_security.dart';
 
 class DetectorTestResult {
   final String detectorName;
-  final SecurityCheckModel result;
+  final EngineSecurityCheckModel result;
   final DateTime timestamp;
   final Duration executionTime;
   final bool isRunning;
@@ -17,7 +17,7 @@ class DetectorTestResult {
 
   DetectorTestResult copyWith({
     String? detectorName,
-    SecurityCheckModel? result,
+    EngineSecurityCheckModel? result,
     DateTime? timestamp,
     Duration? executionTime,
     bool? isRunning,
