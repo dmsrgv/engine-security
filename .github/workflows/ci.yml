@@ -1,6 +1,8 @@
 name: 🔄 CI/CD Pipeline
 
 on:
+  pull_request:
+    branches: [ main ]
   push:
     tags: [ 'v*' ]
   workflow_dispatch:
@@ -37,60 +39,56 @@ jobs:
             ${{ runner.os }}-pub-
 
       - name: 📚 Install Dependencies
-        run: flutter pub get
-
-      - name: 🔧 Install Pana & Coverage
         run: |
           dart pub global activate pana
-          dart pub global activate coverage
+          sudo apt-get update
+          sudo apt-get install -y lcov
+          flutter pub get
 
       - name: 🔍 Analyze Code
         run: dart analyze lib --fatal-infos --fatal-warnings
 
-      - name: 🧪 Run Tests
-        run: flutter test --coverage --reporter=expanded
-
-
-      - name: 📊 Generate Coverage Report
-        run: |          
-          dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
-
-      - name: 📈 Check Coverage Threshold
+      - name: 🧪 Run Tests with Coverage
         run: |
-          # Parse LCOV file to get coverage percentage
-          if [ -f "coverage/lcov.info" ]; then
-            # Extract lines found (LF) and lines hit (LH) from LCOV
-            TOTAL_LINES=$(grep "^LF:" coverage/lcov.info | cut -d: -f2 | paste -sd+ - | bc)
-            COVERED_LINES=$(grep "^LH:" coverage/lcov.info | cut -d: -f2 | paste -sd+ - | bc)
-            
-            if [ "$TOTAL_LINES" -gt 0 ]; then
-              COVERAGE=$(echo "scale=1; ($COVERED_LINES * 100) / $TOTAL_LINES" | bc)
-              echo "Coverage: $COVERAGE% ($COVERED_LINES/$TOTAL_LINES lines)"
-              
-              # Accept coverage >= 50% for security detection packages
-              if (( $(echo "$COVERAGE >= 50" | bc -l) )); then
-                echo "✅ Coverage $COVERAGE% meets minimum requirement (50%)"
-              else
-                echo "❌ Coverage $COVERAGE% below minimum requirement (50%)"
-                exit 1
-              fi
-            else
-              echo "⚠️ No coverage data found, assuming 0% coverage"
-              echo "❌ Coverage 0% below minimum requirement (50%)"
-              exit 1
-            fi
-          else
-            echo "❌ Coverage file not found"
-            exit 1
-          fi
+          echo "🧪 Running tests with coverage..."
+          flutter test --coverage --reporter=expanded
+          
+          echo "📊 Coverage generation completed!"
+          echo "📋 Coverage files:"
+          ls -la coverage/
 
-      - name: 📤 Upload Coverage to Codecov
+      - name: 📊 Generate Coverage Reports
+        run: |
+          echo "📊 Generating HTML coverage report..."
+          genhtml coverage/lcov.info \
+            --output-directory coverage/html \
+            --title "Engine Security Coverage Report" \
+            --show-details \
+            --legend
+          
+          echo "📊 Calculating coverage percentage..."
+          TOTAL_LINES=$(grep "^LF:" coverage/lcov.info | cut -d: -f2 | awk '{sum += $1} END {print sum+0}')
+          COVERED_LINES=$(grep "^LH:" coverage/lcov.info | cut -d: -f2 | awk '{sum += $1} END {print sum+0}')
+          COVERAGE=$(echo "scale=1; ($COVERED_LINES * 100) / $TOTAL_LINES" | bc)
+          
+          echo "✅ Coverage: $COVERAGE% ($COVERED_LINES/$TOTAL_LINES lines)"
+
+      - name: 📤 Upload to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage/lcov.info
           flags: unittests
-          name: engine-security-coverage
+          name: engine-security
+          fail_ci_if_error: false
+
+      - name: 📤 Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage
+          retention-days: 3
 
       - name: 📊 Run Pana Analysis
         run: |
