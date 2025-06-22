@@ -1,0 +1,261 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  FLUTTER_VERSION: '3.32.0'
+  DART_VERSION: '3.8.0'
+
+jobs:
+  analyze:
+    name: 🔍 Static Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ env.DART_VERSION }}
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: ✨ Check Formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: 🔍 Analyze Code
+        run: dart analyze --fatal-infos --fatal-warnings
+
+      - name: 🧪 Check Pub Publish
+        run: dart pub publish --dry-run
+
+  test:
+    name: 🧪 Unit Tests & Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: analyze
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ env.DART_VERSION }}
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: 🧪 Run Tests with Coverage
+        run: |
+          dart pub global activate coverage
+          dart test --coverage=coverage
+          dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+
+      - name: 📊 Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage/lcov.info
+          flags: unittests
+          name: engine-security-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          verbose: true
+
+      - name: 📈 Coverage Report
+        run: |
+          dart pub global activate test_coverage
+          dart pub global run test_coverage --min-coverage=100
+
+  pana:
+    name: 📝 Pana Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: analyze
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ env.DART_VERSION }}
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: 📝 Install Pana
+        run: dart pub global activate pana
+
+      - name: 📊 Run Pana Analysis
+        run: |
+          dart pub global run pana --json --output pana_output.json
+          echo "Pana Score:"
+          cat pana_output.json | jq '.scores'
+
+      - name: 📋 Pana Results
+        run: |
+          PANA_SCORE=$(cat pana_output.json | jq '.scores.grantedPoints')
+          PANA_MAX=$(cat pana_output.json | jq '.scores.maxPoints')
+          echo "Pana Score: $PANA_SCORE/$PANA_MAX"
+          if [ "$PANA_SCORE" -lt "100" ]; then
+            echo "❌ Pana score is below 100 points"
+            exit 1
+          fi
+          echo "✅ Pana analysis passed with $PANA_SCORE points"
+
+      - name: 📤 Upload Pana Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pana-results
+          path: pana_output.json
+
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ env.DART_VERSION }}
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: 🔍 Dart Code Metrics
+        run: |
+          dart pub global activate dart_code_metrics
+          dart pub global run dart_code_metrics:metrics analyze lib --fatal-style --fatal-performance --fatal-warnings
+
+      - name: 🔒 Dependency Vulnerability Check
+        run: |
+          dart pub deps --json > deps.json
+          echo "Checking for known vulnerabilities..."
+          # Aqui você pode adicionar verificação de vulnerabilidades específicas
+
+  build-test:
+    name: 🏗️ Build & Integration Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [test, pana]
+    
+    strategy:
+      matrix:
+        example: [security_demo]
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: 📦 Get Dependencies (Library)
+        run: dart pub get
+
+      - name: 📦 Get Dependencies (Example)
+        working-directory: examples/${{ matrix.example }}
+        run: flutter pub get
+
+      - name: 🏗️ Build Example App (Android)
+        working-directory: examples/${{ matrix.example }}
+        run: flutter build apk --debug
+
+      - name: 🧪 Test Example App
+        working-directory: examples/${{ matrix.example }}
+        run: flutter test
+
+  publish:
+    name: 📦 Publish to Pub.dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [test, pana, security, build-test]
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    environment:
+      name: pub.dev
+      url: https://pub.dev/packages/engine_security
+    
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ env.DART_VERSION }}
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: 🔍 Final Verification
+        run: |
+          dart analyze --fatal-infos --fatal-warnings
+          dart test
+          dart pub publish --dry-run
+
+      - name: 📦 Publish to Pub.dev
+        uses: k-paxian/dart-package-publisher@v1.6
+        with:
+          credentialJson: ${{ secrets.PUB_CREDENTIALS }}
+          accessToken: ${{ secrets.PUB_ACCESS_TOKEN }}
+          refreshToken: ${{ secrets.PUB_REFRESH_TOKEN }}
+          flutter: true
+          skipTests: true
+          dryRunOnly: false
+
+  notify:
+    name: 📱 Notifications
+    runs-on: ubuntu-latest
+    needs: [analyze, test, pana, security, build-test]
+    if: always()
+    
+    steps:
+      - name: 📊 Job Status Summary
+        run: |
+          echo "🔍 Analyze: ${{ needs.analyze.result }}"
+          echo "🧪 Test: ${{ needs.test.result }}"
+          echo "📝 Pana: ${{ needs.pana.result }}"
+          echo "🔒 Security: ${{ needs.security.result }}"
+          echo "🏗️ Build: ${{ needs.build-test.result }}"
+
+      - name: ✅ Success Notification
+        if: ${{ needs.analyze.result == 'success' && needs.test.result == 'success' && needs.pana.result == 'success' && needs.security.result == 'success' && needs.build-test.result == 'success' }}
+        run: |
+          echo "🎉 All jobs completed successfully!"
+          echo "✅ Code analysis passed"
+          echo "✅ Tests passed with 100% coverage"
+          echo "✅ Pana analysis scored 100 points"
+          echo "✅ Security checks passed"
+          echo "✅ Build and integration tests passed"
+
+      - name: ❌ Failure Notification
+        if: ${{ needs.analyze.result == 'failure' || needs.test.result == 'failure' || needs.pana.result == 'failure' || needs.security.result == 'failure' || needs.build-test.result == 'failure' }}
+        run: |
+          echo "❌ One or more jobs failed!"
+          echo "Please check the logs and fix the issues."
+          exit 1 

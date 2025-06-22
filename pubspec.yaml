@@ -1,19 +1,38 @@
 name: engine_security
-description: Plugin Flutter para funcionalidades de segurança, detecção de frida, emulador, root/jailbreak do Engine Framework
+description: Advanced security detection system for Flutter applications focused on Android and iOS. Detects Frida, Root/Jailbreak, Emulator, and Debugger threats with high precision.
 version: 1.0.0
-homepage: https://github.com/moreirawebmaster/engine
-repository: https://github.com/moreirawebmaster/engine
+homepage: https://github.com/moreirawebmaster/engine-security
+repository: https://github.com/moreirawebmaster/engine-security
+issue_tracker: https://github.com/moreirawebmaster/engine-security/issues
+documentation: https://github.com/moreirawebmaster/engine-security#readme
+
+funding:
+  - https://github.com/sponsors/moreirawebmaster
+
+topics:
+  - security
+  - detection
+  - frida
+  - mobile
+  - android
+
+platforms:
+  android:
+  ios:
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=3.32.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  device_info_plus: any
-  package_info_plus: any
+  device_info_plus: ^11.5.0
+  package_info_plus: ^8.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  test: ^1.25.15
+  flutter_lints: ^6.0.0
+  coverage: ^1.14.1

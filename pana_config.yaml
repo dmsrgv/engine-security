@@ -1,0 +1,52 @@
+format: json
+output: pana_output.json
+
+analysis:
+  enable-all: true
+  severity:
+    error: 2
+    warning: 1
+    info: 0
+  exclude:
+    - "examples/**"
+    - "**/*.g.dart"
+    - "**/*.mocks.dart"
+    - "test/**"
+    - "build/**"
+    - ".dart_tool/**"
+
+documentation:
+  require-public-api-docs: true
+  check-examples: true
+  validate-links: true
+
+dependencies:
+  check-outdated: true
+  check-vulnerabilities: true
+  check-licenses: true
+
+platforms:
+  flutter: true
+  dart: true
+  android: true
+  ios: true
+  web: false
+  linux: false
+  macos: false
+  windows: false
+
+maintenance:
+  check-activity: true
+  check-issues: true
+  check-response-time: true
+
+popularity:
+  check-downloads: true
+  check-likes: true
+  check-pub-points: true
+
+code-quality:
+  static-analysis: true
+  formatting: true
+  naming-conventions: true
+  complexity-check: true

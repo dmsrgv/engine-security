@@ -1,0 +1,78 @@
+version: 2
+
+updates:
+  # Dart/Flutter dependencies
+  - package-ecosystem: "pub"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 10
+    assignees:
+      - "thiagomoreira"
+    labels:
+      - "dependencies"
+      - "dart"
+      - "automated"
+    commit-message:
+      prefix: "⬆️"
+      prefix-development: "⬆️ dev"
+      include: "scope"
+    reviewers:
+      - "thiagomoreira"
+    target-branch: "develop"
+    versioning-strategy: "increase"
+
+    # Configurações de auto-merge
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+
+    # Ignorar certas dependências
+    ignore:
+      - dependency-name: "flutter"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "dart"
+        update-types: ["version-update:semver-major"]
+
+  # Example app dependencies
+  - package-ecosystem: "pub"
+    directory: "/examples/security_demo"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "10:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 5
+    assignees:
+      - "moreirawebmaster"
+    labels:
+      - "dependencies"
+      - "example-app"
+      - "automated"
+    commit-message:
+      prefix: "⬆️ example"
+      include: "scope"
+    target-branch: "develop"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "11:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 5
+    assignees:
+      - "moreirawebmaster"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "automated"
+    commit-message:
+      prefix: "⬆️ actions"
+      include: "scope"
+    target-branch: "develop"

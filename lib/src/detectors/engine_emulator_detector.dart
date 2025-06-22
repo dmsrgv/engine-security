@@ -75,13 +75,13 @@ class EngineEmulatorDetector implements ISecurityDetector {
       indicators.add('Non-physical device detected');
     }
 
-    if (androidInfo.hardware.toLowerCase().contains('goldfish') ||
-        androidInfo.hardware.toLowerCase().contains('ranchu')) {
+    if (androidInfo.hardware.toLowerCase().contains('goldfish') == true ||
+        androidInfo.hardware.toLowerCase().contains('ranchu') == true) {
       indicators.add('Emulator hardware: ${androidInfo.hardware}');
     }
 
-    if (androidInfo.fingerprint.toLowerCase().contains('generic') ||
-        androidInfo.fingerprint.toLowerCase().contains('emulator')) {
+    if (androidInfo.fingerprint.toLowerCase().contains('generic') == true ||
+        androidInfo.fingerprint.toLowerCase().contains('emulator') == true) {
       indicators.add('Emulator fingerprint detected');
     }
 
