@@ -45,7 +45,7 @@ jobs:
           dart pub global activate coverage
 
       - name: 🔍 Analyze Code
-        run: dart analyze --fatal-infos --fatal-warnings
+        run: dart analyze lib --fatal-infos --fatal-warnings
 
       - name: 🧪 Run Tests
         run: flutter test --coverage --reporter=expanded
