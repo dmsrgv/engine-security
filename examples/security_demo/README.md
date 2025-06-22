@@ -76,7 +76,7 @@ lib/
 
 1. **Pré-requisitos**:
    ```bash
-   flutter --version  # Flutter 3.0+
+   flutter --version  # Flutter 3.32.0+
    ```
 
 2. **Instalar Dependências**:

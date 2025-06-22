@@ -23,7 +23,7 @@ A clear and concise description of what actually happened.
 
 ## 📱 Environment
 - **OS:** [e.g. iOS 17.0, Android 14]
-- **Flutter Version:** [e.g. 3.29.0]
+- **Flutter Version:** [e.g. 3.32.0]
 - **Package Version:** [e.g. 1.0.0]
 - **Device:** [e.g. iPhone 15, Pixel 8]
 

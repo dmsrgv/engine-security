@@ -67,7 +67,7 @@ Todos os exemplos seguem:
 - **Versão Mínima**: 
   - Android: API 21+ (Android 5.0)
   - iOS: iOS 12.0+
-- **Flutter**: 3.0+
+- **Flutter**: 3.32.0+
 
 ## 🚀 Começando
 
