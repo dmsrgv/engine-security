@@ -6,7 +6,6 @@ import 'dart:io';
 import 'package:engine_security/src/src.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
 
 class EngineGpsFakeDetector implements ISecurityDetector {
@@ -103,95 +102,68 @@ class EngineGpsFakeDetector implements ISecurityDetector {
   Future<List<String>> _checkAndroidGpsFake() async {
     final indicators = <String>[];
 
-    try {
-      final mockLocationEnabled = await _channel.invokeMethod<bool>('checkMockLocationEnabled');
-      if (mockLocationEnabled == true) {
-        indicators.add('Mock location enabled in developer options');
-      }
-    } catch (e) {}
+    final futures = <Future<void>>[
+      () async {
+        try {
+          final mockLocationEnabled = await _channel.invokeMethod<bool>('checkMockLocationEnabled');
+          if (mockLocationEnabled == true) {
+            indicators.add('Mock location enabled in developer options');
+          }
+        } catch (e) {}
+      }(),
 
-    try {
-      final installedApps = await _channel.invokeMethod<List<dynamic>>('getInstalledApps');
-      if (installedApps != null) {
-        final fakeAppsFound = installedApps.where((final app) => _fakeLocationApps.contains(app.toString())).toList();
+      () async {
+        try {
+          final installedApps = await _channel.invokeMethod<List<dynamic>>('getInstalledApps');
+          if (installedApps != null) {
+            final fakeAppsFound = installedApps
+                .where((final app) => _fakeLocationApps.contains(app.toString()))
+                .toList();
+            if (fakeAppsFound.isNotEmpty) {
+              indicators.add('Fake GPS apps detected: ${fakeAppsFound.length} apps');
+            }
+          }
+        } catch (e) {}
+      }(),
 
-        if (fakeAppsFound.isNotEmpty) {
-          indicators.add('Fake GPS apps detected: ${fakeAppsFound.length} apps');
-        }
-      }
-    } catch (e) {}
+      () async {
+        try {
+          final status = await Permission.location.status;
+          if (status.isDenied || status.isPermanentlyDenied) {
+            indicators.add('Location permission denied');
+          }
+        } catch (e) {}
+      }(),
+    ];
+
+    await Future.wait(futures);
+
+    if (indicators.isNotEmpty) {
+      return indicators;
+    }
 
     if (await Geolocator.isLocationServiceEnabled()) {
       try {
         final position = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            timeLimit: Duration(seconds: 10),
+            accuracy: LocationAccuracy.low,
+            timeLimit: Duration(milliseconds: 800),
           ),
-        ).timeout(const Duration(seconds: 15));
+        ).timeout(const Duration(milliseconds: 1500));
 
-        if (position.accuracy > 100) {
-          indicators.add('Suspicious GPS accuracy: ${position.accuracy.toInt()}m');
+        if (position.latitude == 0.0 && position.longitude == 0.0) {
+          indicators.add('GPS returning zero coordinates');
         }
 
-        if (position.altitude == 0.0 && position.speed == 0.0) {
-          indicators.add('Suspicious GPS values: zero altitude and speed');
+        if (position.accuracy > 1000) {
+          indicators.add('GPS accuracy extremely poor');
         }
-      } catch (e) {}
-
-      try {
-        final positions = <Position>[];
-
-        for (var i = 0; i < 3; i++) {
-          try {
-            final position = await Geolocator.getCurrentPosition(
-              locationSettings: const LocationSettings(
-                accuracy: LocationAccuracy.high,
-                timeLimit: Duration(seconds: 5),
-              ),
-            ).timeout(const Duration(seconds: 8));
-            positions.add(position);
-
-            if (i < 2) {
-              await Future.delayed(const Duration(seconds: 2));
-            }
-          } catch (e) {
-            break;
-          }
+      } catch (e) {
+        if (e.toString().contains('timeout')) {
+          indicators.add('GPS timeout - possible interference');
         }
-
-        if (positions.length >= 2) {
-          for (var i = 1; i < positions.length; i++) {
-            final distance = Geolocator.distanceBetween(
-              positions[i - 1].latitude,
-              positions[i - 1].longitude,
-              positions[i].latitude,
-              positions[i].longitude,
-            );
-
-            final timeDiff = positions[i].timestamp.difference(positions[i - 1].timestamp);
-
-            if (distance > 1000 && timeDiff.inSeconds < 10) {
-              indicators.add('Impossible GPS movement: ${distance.toInt()}m in ${timeDiff.inSeconds}s');
-              break;
-            }
-          }
-        }
-      } catch (e) {}
+      }
     }
-
-    try {
-      final status = await Permission.location.status;
-      if (status.isDenied || status.isPermanentlyDenied) {
-        indicators.add('Location permission denied');
-      }
-
-      final locationService = loc.Location();
-      final serviceEnabled = await locationService.serviceEnabled();
-      if (!serviceEnabled) {
-        indicators.add('Location service disabled');
-      }
-    } catch (e) {}
 
     return indicators;
   }
@@ -199,122 +171,90 @@ class EngineGpsFakeDetector implements ISecurityDetector {
   Future<List<String>> _checkIOSGpsFake() async {
     final indicators = <String>[];
 
-    // Verificar jailbreak (que facilita GPS spoofing)
-    try {
-      final isJailbroken = await _channel.invokeMethod<bool>('checkJailbreakStatus');
-      if (isJailbroken == true) {
-        indicators.add('Device is jailbroken - GPS spoofing possible');
-      }
-    } catch (e) {}
+    final futures = <Future<void>>[
+      () async {
+        try {
+          final isJailbroken = await _channel.invokeMethod<bool>('checkJailbreakStatus');
+          if (isJailbroken == true) {
+            indicators.add('Device is jailbroken - GPS spoofing possible');
+          }
+        } catch (e) {}
+      }(),
 
-    // Verificar apps de GPS fake específicos do iOS
-    try {
-      final fakeApps = await _channel.invokeMethod<List<dynamic>>('getInstalledApps');
-      if (fakeApps != null && fakeApps.isNotEmpty) {
-        indicators.add('Fake GPS apps detected: ${fakeApps.length} apps');
-      }
-    } catch (e) {}
+      () async {
+        try {
+          final fakeApps = await _channel.invokeMethod<List<dynamic>>('getInstalledApps');
+          if (fakeApps != null && fakeApps.isNotEmpty) {
+            indicators.add('Fake GPS apps detected: ${fakeApps.length} apps');
+          }
+        } catch (e) {}
+      }(),
 
-    // Verificar confiabilidade dos serviços de localização nativos
-    try {
-      final reliability = await _channel.invokeMethod<Map<dynamic, dynamic>>('checkLocationServicesReliability');
-      if (reliability != null) {
-        final isReliable = reliability['isReliable']?.toBool() ?? true;
-        final suspiciousCount = reliability['suspiciousCount']?.toInt() ?? 0;
+      () async {
+        try {
+          final reliability = await _channel.invokeMethod<Map<dynamic, dynamic>>('checkLocationServicesReliability');
+          if (reliability != null) {
+            final isReliable = reliability['isReliable']?.toBool() ?? true;
+            final suspiciousCount = reliability['suspiciousCount']?.toInt() ?? 0;
 
-        if (!isReliable) {
-          indicators.add('Location services unreliable');
-        }
+            if (!isReliable) {
+              indicators.add('Location services unreliable');
+            }
 
-        if (suspiciousCount > 0) {
-          indicators.add('Core Location services compromised: $suspiciousCount issues');
-        }
+            if (suspiciousCount > 0) {
+              indicators.add('Core Location services compromised: $suspiciousCount issues');
+            }
 
-        final authStatus = reliability['authorizationStatus']?.toString();
-        if (authStatus == 'restricted' || authStatus == 'denied') {
-          indicators.add('Location authorization issues: $authStatus');
-        }
-      }
-    } catch (e) {}
+            final authStatus = reliability['authorizationStatus']?.toString();
+            if (authStatus == 'restricted' || authStatus == 'denied') {
+              indicators.add('Location authorization issues: $authStatus');
+            }
+          }
+        } catch (e) {}
+      }(),
 
-    // Verificar GPS usando geolocator (garantindo uso do Core Location Framework)
+      () async {
+        try {
+          final status = await Permission.location.status;
+          if (status.isDenied || status.isPermanentlyDenied) {
+            indicators.add('Location permission denied');
+          }
+        } catch (e) {}
+      }(),
+    ];
+
+    await Future.wait(futures);
+
+    if (indicators.isNotEmpty) {
+      return indicators;
+    }
+
     if (await Geolocator.isLocationServiceEnabled()) {
       try {
         final position = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            timeLimit: Duration(seconds: 10),
+            accuracy: LocationAccuracy.low,
+            timeLimit: Duration(milliseconds: 800),
           ),
-        ).timeout(const Duration(seconds: 15));
+        ).timeout(const Duration(milliseconds: 1500));
 
-        // No iOS, accuracy muito baixa pode indicar spoofing
-        if (position.accuracy > 100) {
-          indicators.add('Suspicious GPS accuracy: ${position.accuracy.toInt()}m');
+        if (position.latitude == 0.0 && position.longitude == 0.0) {
+          indicators.add('GPS returning zero coordinates');
         }
 
-        // Verificar valores impossíveis (comum em apps de spoofing)
-        if (position.altitude == 0.0 && position.speed == 0.0) {
-          indicators.add('Suspicious GPS values detected');
+        if (position.accuracy > 1000) {
+          indicators.add('GPS accuracy extremely poor');
         }
 
-        // Verificar se os dados de localização são muito "perfeitos" (indicativo de fake)
-        if (position.accuracy < 5.0 && position.altitude.abs() < 1.0) {
-          indicators.add('GPS data too precise - possible spoofing');
+        if (position.accuracy < 0.5 && position.altitude == 0.0) {
+          indicators.add('GPS data artificially perfect');
         }
       } catch (e) {
-        indicators.add('GPS reading failed - possible interference');
+        if (e.toString().contains('timeout')) {
+          indicators.add('GPS timeout - possible interference');
+        }
       }
-
-      // Verificação de consistência temporal (detectar teletransporte)
-      try {
-        final positions = <Position>[];
-
-        for (var i = 0; i < 3; i++) {
-          try {
-            final position = await Geolocator.getCurrentPosition(
-              locationSettings: const LocationSettings(
-                accuracy: LocationAccuracy.high,
-                timeLimit: Duration(seconds: 5),
-              ),
-            ).timeout(const Duration(seconds: 8));
-            positions.add(position);
-
-            if (i < 2) {
-              await Future.delayed(const Duration(seconds: 2));
-            }
-          } catch (e) {
-            break;
-          }
-        }
-
-        if (positions.length >= 2) {
-          for (var i = 1; i < positions.length; i++) {
-            final distance = Geolocator.distanceBetween(
-              positions[i - 1].latitude,
-              positions[i - 1].longitude,
-              positions[i].latitude,
-              positions[i].longitude,
-            );
-
-            final timeDiff = positions[i].timestamp.difference(positions[i - 1].timestamp);
-
-            // No iOS, movimentos impossíveis são mais raros devido às restrições
-            if (distance > 500 && timeDiff.inSeconds < 5) {
-              indicators.add('Impossible GPS movement detected: ${distance.toInt()}m in ${timeDiff.inSeconds}s');
-              break;
-            }
-          }
-        }
-      } catch (e) {}
     }
-
-    // Verificar permissões (usando Core Location via permission_handler)
-    try {
-      final status = await Permission.location.status;
-      if (status.isDenied || status.isPermanentlyDenied) {
-        indicators.add('Location permission denied');
-      }
-    } catch (e) {}
 
     return indicators;
   }
