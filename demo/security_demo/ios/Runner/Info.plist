@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	<!-- Permissões necessárias para o detector de GPS Fake -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Este app precisa de acesso à localização para testar o detector de GPS falso e verificar a segurança do dispositivo.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Este app precisa de acesso à localização para testar o detector de GPS falso e verificar a segurança do dispositivo.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Este app precisa de acesso à localização para testar o detector de GPS falso e verificar a segurança do dispositivo.</string>
 </dict>
 </plist>

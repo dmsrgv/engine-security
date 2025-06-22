@@ -34,30 +34,17 @@ class SecurityCard extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    gradient: _getIconGradient(),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  decoration: BoxDecoration(gradient: _getIconGradient(), borderRadius: BorderRadius.circular(12)),
+                  child: Icon(icon, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
+                      Text(title, style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(height: 4),
-                      Text(
-                        description,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
+                      Text(description, style: Theme.of(context).textTheme.bodyMedium),
                     ],
                   ),
                 ),
@@ -65,10 +52,7 @@ class SecurityCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            if (testResult != null) ...[
-              _buildTestResults(context),
-              const SizedBox(height: 16),
-            ],
+            if (testResult != null) ...[_buildTestResults(context), const SizedBox(height: 16)],
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -103,19 +87,12 @@ class SecurityCard extends StatelessWidget {
       return const SizedBox(
         width: 20,
         height: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-        ),
+        child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary)),
       );
     }
 
     if (testResult == null) {
-      return const Icon(
-        Icons.help_outline,
-        color: AppColors.onSurfaceVariant,
-        size: 20,
-      );
+      return const Icon(Icons.help_outline, color: AppColors.onSurfaceVariant, size: 20);
     }
 
     return Icon(
@@ -131,10 +108,12 @@ class SecurityCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant.withOpacity(0.3),
+        color: AppColors.surfaceVariant.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: testResult!.result.isSecure ? AppColors.success.withOpacity(0.3) : AppColors.error.withOpacity(0.3),
+          color: testResult!.result.isSecure
+              ? AppColors.success.withValues(alpha: 0.3)
+              : AppColors.error.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -152,18 +131,14 @@ class SecurityCard extends StatelessWidget {
               Text(
                 testResult!.statusDescription,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: testResult!.result.isSecure ? AppColors.success : AppColors.error,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  color: testResult!.result.isSecure ? AppColors.success : AppColors.error,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          _buildResultRow(
-            context,
-            'Detalhes:',
-            testResult!.result.details ?? 'Nenhum detalhe disponível',
-          ),
+          _buildResultRow(context, 'Detalhes:', testResult!.result.details ?? 'Nenhum detalhe disponível'),
           const SizedBox(height: 8),
           _buildResultRow(
             context,
@@ -171,24 +146,12 @@ class SecurityCard extends StatelessWidget {
             '${testResult!.confidencePercentage} (${testResult!.confidenceDescription})',
           ),
           const SizedBox(height: 8),
-          _buildResultRow(
-            context,
-            'Método:',
-            testResult!.result.detectionMethod ?? 'Não especificado',
-          ),
+          _buildResultRow(context, 'Método:', testResult!.result.detectionMethod ?? 'Não especificado'),
           const SizedBox(height: 8),
-          _buildResultRow(
-            context,
-            'Tempo:',
-            '${testResult!.executionTime.inMilliseconds}ms',
-          ),
+          _buildResultRow(context, 'Tempo:', '${testResult!.executionTime.inMilliseconds}ms'),
           if (testResult!.result.threatType != SecurityThreatType.unknown) ...[
             const SizedBox(height: 8),
-            _buildResultRow(
-              context,
-              'Severidade:',
-              '${testResult!.result.threatType.severityLevel}/10',
-            ),
+            _buildResultRow(context, 'Severidade:', '${testResult!.result.threatType.severityLevel}/10'),
           ],
         ],
       ),
@@ -201,19 +164,9 @@ class SecurityCard extends StatelessWidget {
       children: [
         SizedBox(
           width: 80,
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-          ),
+          child: Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500)),
         ),
-        Expanded(
-          child: Text(
-            value,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ),
+        Expanded(child: Text(value, style: Theme.of(context).textTheme.bodySmall)),
       ],
     );
   }

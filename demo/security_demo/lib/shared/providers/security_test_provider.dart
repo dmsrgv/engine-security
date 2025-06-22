@@ -1,5 +1,6 @@
 import 'package:engine_security/engine_security.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../models/detector_test_result.dart';
 
@@ -21,6 +22,32 @@ class SecurityTestNotifier extends StateNotifier<Map<String, DetectorTestResult?
     };
 
     try {
+      // Solicitar permissões de localização para GPS Fake
+      if (detectorName == 'GPS Fake') {
+        final permissionGranted = await _requestLocationPermissions();
+        if (!permissionGranted) {
+          stopwatch.stop();
+          state = {
+            ...state,
+            detectorName: DetectorTestResult(
+              detectorName: detectorName,
+              result: SecurityCheckModel.secure(
+                details:
+                    'Permissão de localização necessária. Vá em Configurações > Apps > Security Demo > Permissões e habilite Localização.',
+                confidence: 0.0,
+              ),
+              timestamp: DateTime.now(),
+              executionTime: stopwatch.elapsed,
+              isRunning: false,
+            ),
+          };
+          return;
+        }
+
+        // Aguardar um pouco para as permissões serem processadas
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
       late ISecurityDetector detector;
 
       switch (detectorName) {
@@ -91,6 +118,34 @@ class SecurityTestNotifier extends StateNotifier<Map<String, DetectorTestResult?
 
   DetectorTestResult? getResult(String detectorName) {
     return state[detectorName];
+  }
+
+  /// Solicita permissões de localização necessárias para o teste de GPS Fake
+  Future<bool> _requestLocationPermissions() async {
+    try {
+      // Verificar se as permissões já foram concedidas
+      final locationStatus = await Permission.location.status;
+
+      if (locationStatus == PermissionStatus.granted) {
+        return true;
+      }
+
+      // Solicitar permissão de localização
+      final result = await Permission.location.request();
+
+      if (result == PermissionStatus.granted) {
+        return true;
+      }
+
+      // Se a permissão foi negada permanentemente, informar o usuário
+      if (result == PermissionStatus.permanentlyDenied) {
+        return false;
+      }
+
+      return false;
+    } catch (e) {
+      return false;
+    }
   }
 }
 
