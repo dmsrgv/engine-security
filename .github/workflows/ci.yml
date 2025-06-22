@@ -57,15 +57,30 @@ jobs:
 
       - name: 📈 Check Coverage Threshold
         run: |
-          dart pub global activate coverage
-          COVERAGE=$(dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib | grep -oP 'lines\.*: \K[0-9.]+(?=%)')
-          echo "Coverage: $COVERAGE%"
-          
-          # Accept coverage >= 50% for security detection packages
-          if (( $(echo "$COVERAGE >= 50" | bc -l) )); then
-            echo "✅ Coverage $COVERAGE% meets minimum requirement (50%)"
+          # Parse LCOV file to get coverage percentage
+          if [ -f "coverage/lcov.info" ]; then
+            # Extract lines found (LF) and lines hit (LH) from LCOV
+            TOTAL_LINES=$(grep "^LF:" coverage/lcov.info | cut -d: -f2 | paste -sd+ - | bc)
+            COVERED_LINES=$(grep "^LH:" coverage/lcov.info | cut -d: -f2 | paste -sd+ - | bc)
+            
+            if [ "$TOTAL_LINES" -gt 0 ]; then
+              COVERAGE=$(echo "scale=1; ($COVERED_LINES * 100) / $TOTAL_LINES" | bc)
+              echo "Coverage: $COVERAGE% ($COVERED_LINES/$TOTAL_LINES lines)"
+              
+              # Accept coverage >= 50% for security detection packages
+              if (( $(echo "$COVERAGE >= 50" | bc -l) )); then
+                echo "✅ Coverage $COVERAGE% meets minimum requirement (50%)"
+              else
+                echo "❌ Coverage $COVERAGE% below minimum requirement (50%)"
+                exit 1
+              fi
+            else
+              echo "⚠️ No coverage data found, assuming 0% coverage"
+              echo "❌ Coverage 0% below minimum requirement (50%)"
+              exit 1
+            fi
           else
-            echo "❌ Coverage $COVERAGE% below minimum requirement (50%)"
+            echo "❌ Coverage file not found"
             exit 1
           fi
 
