@@ -41,10 +41,11 @@ jobs:
       - name: 📚 Install Dependencies
         run: flutter pub get
 
-      - name: 🔧 Install Pana & Coverage
+      - name: 🔧 Install Pana & LCOV
         run: |
           dart pub global activate pana
-          dart pub global activate coverage
+          sudo apt-get update
+          sudo apt-get install -y lcov
 
       - name: 🔍 Analyze Code
         run: dart analyze lib --fatal-infos --fatal-warnings
@@ -53,24 +54,36 @@ jobs:
         run: flutter test --coverage --reporter=expanded
 
 
-      - name: 📊 Generate Coverage Report
+      - name: 📊 Verify Coverage Report
         run: |
           echo "📋 Checking coverage directory contents:"
           ls -la coverage/ || echo "Coverage directory not found"
           
-          echo "📊 Generating LCOV report..."
-          dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
-          
-          echo "📋 Checking if LCOV file was generated:"
+          echo "📋 Verifying LCOV file:"
           if [ -f "coverage/lcov.info" ]; then
-            echo "✅ LCOV file generated successfully"
+            echo "✅ LCOV file found"
             echo "📄 File size: $(wc -l < coverage/lcov.info) lines"
+            echo "📄 First 5 lines of coverage file:"
+            head -5 coverage/lcov.info
           else
-            echo "❌ LCOV file not generated"
+            echo "❌ LCOV file not found"
             echo "📄 Coverage directory contents:"
             ls -la coverage/
-            echo "📄 Raw coverage files:"
-            find coverage -name "*.json" | head -5
+          fi
+
+      - name: 📊 Generate HTML Coverage Report
+        run: |
+          if [ -f "coverage/lcov.info" ]; then
+            echo "📊 Generating HTML coverage report..."
+            genhtml coverage/lcov.info --output-directory coverage/html \
+              --title "Engine Security Coverage Report" \
+              --show-details --legend
+            
+            echo "📋 HTML report generated:"
+            ls -la coverage/html/
+            echo "📄 HTML report size: $(du -sh coverage/html/)"
+          else
+            echo "⚠️ LCOV file not found, skipping HTML generation"
           fi
 
       - name: 📈 Check Coverage Threshold
@@ -131,6 +144,16 @@ jobs:
           file: ./coverage/lcov.info
           flags: unittests
           name: engine-security-coverage
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: 📤 Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage
+          retention-days: 3
 
       - name: 📊 Run Pana Analysis
         run: |
