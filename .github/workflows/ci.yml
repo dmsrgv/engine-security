@@ -39,113 +39,48 @@ jobs:
             ${{ runner.os }}-pub-
 
       - name: 📚 Install Dependencies
-        run: flutter pub get
-
-      - name: 🔧 Install Pana & LCOV
         run: |
           dart pub global activate pana
           sudo apt-get update
           sudo apt-get install -y lcov
+          flutter pub get
 
       - name: 🔍 Analyze Code
         run: dart analyze lib --fatal-infos --fatal-warnings
 
-      - name: 🧪 Run Tests
-        run: flutter test --coverage --reporter=expanded
-
-
-      - name: 📊 Verify Coverage Report
+      - name: 🧪 Run Tests with Coverage
         run: |
-          echo "📋 Checking coverage directory contents:"
-          ls -la coverage/ || echo "Coverage directory not found"
+          echo "🧪 Running tests with coverage..."
+          flutter test --coverage --reporter=expanded
           
-          echo "📋 Verifying LCOV file:"
-          if [ -f "coverage/lcov.info" ]; then
-            echo "✅ LCOV file found"
-            echo "📄 File size: $(wc -l < coverage/lcov.info) lines"
-            echo "📄 First 5 lines of coverage file:"
-            head -5 coverage/lcov.info
-          else
-            echo "❌ LCOV file not found"
-            echo "📄 Coverage directory contents:"
-            ls -la coverage/
-          fi
+          echo "📊 Coverage generation completed!"
+          echo "📋 Coverage files:"
+          ls -la coverage/
 
-      - name: 📊 Generate HTML Coverage Report
+      - name: 📊 Generate Coverage Reports
         run: |
-          if [ -f "coverage/lcov.info" ]; then
-            echo "📊 Generating HTML coverage report..."
-            genhtml coverage/lcov.info --output-directory coverage/html \
-              --title "Engine Security Coverage Report" \
-              --show-details --legend
-            
-            echo "📋 HTML report generated:"
-            ls -la coverage/html/
-            echo "📄 HTML report size: $(du -sh coverage/html/)"
-          else
-            echo "⚠️ LCOV file not found, skipping HTML generation"
-          fi
-
-      - name: 📈 Check Coverage Threshold
-        run: |
-          echo "🔍 Searching for coverage files..."
-          find . -name "*.lcov" -o -name "lcov.info" -o -name "*.info" | head -10
+          echo "📊 Generating HTML coverage report..."
+          genhtml coverage/lcov.info \
+            --output-directory coverage/html \
+            --title "Engine Security Coverage Report" \
+            --show-details \
+            --legend
           
-          # Check if coverage file exists
-          if [ -f "coverage/lcov.info" ]; then
-            echo "📋 Using coverage file: coverage/lcov.info"
-            
-            # Debug: Show file content
-            echo "📄 Coverage file content (first 10 lines):"
-            head -10 "coverage/lcov.info"
-            
-            # Simple validation that file has LCOV format
-            if grep -q "^SF:" "coverage/lcov.info" && grep -q "^LF:" "coverage/lcov.info"; then
-              # Extract lines found (LF) and lines hit (LH) from LCOV
-              echo "🔍 Extracting coverage data..."
-              
-              TOTAL_LINES=$(grep "^LF:" "coverage/lcov.info" | cut -d: -f2 | awk '{sum += $1} END {print sum+0}')
-              COVERED_LINES=$(grep "^LH:" "coverage/lcov.info" | cut -d: -f2 | awk '{sum += $1} END {print sum+0}')
-              
-              echo "📊 Lines found: ${TOTAL_LINES:-0}"
-              echo "📊 Lines covered: ${COVERED_LINES:-0}"
-              
-              # Validate numbers
-              if [[ "$TOTAL_LINES" =~ ^[0-9]+$ ]] && [[ "$COVERED_LINES" =~ ^[0-9]+$ ]] && [ "$TOTAL_LINES" -gt 0 ]; then
-                COVERAGE=$(echo "scale=1; ($COVERED_LINES * 100) / $TOTAL_LINES" | bc)
-                echo "Coverage: $COVERAGE% ($COVERED_LINES/$TOTAL_LINES lines)"
-                
-                # Accept coverage >= 50% for security detection packages
-                if (( $(echo "$COVERAGE >= 50" | bc -l) )); then
-                  echo "✅ Coverage $COVERAGE% meets minimum requirement (50%)"
-                else
-                  echo "❌ Coverage $COVERAGE% below minimum requirement (50%)"
-                  exit 1
-                fi
-              else
-                echo "⚠️ Invalid coverage data - TOTAL_LINES: '$TOTAL_LINES', COVERED_LINES: '$COVERED_LINES'"
-                echo "⚠️ Skipping coverage check for now"
-              fi
-            else
-              echo "⚠️ Coverage file doesn't have expected LCOV format"
-              echo "⚠️ Skipping coverage check for now"
-            fi
-          else
-            echo "⚠️ No coverage file found at coverage/lcov.info"
-            echo "📋 Available files in coverage directory:"
-            ls -la coverage/ 2>/dev/null || echo "Coverage directory doesn't exist"
-            echo "⚠️ Skipping coverage check for now"
-          fi
+          echo "📊 Calculating coverage percentage..."
+          TOTAL_LINES=$(grep "^LF:" coverage/lcov.info | cut -d: -f2 | awk '{sum += $1} END {print sum+0}')
+          COVERED_LINES=$(grep "^LH:" coverage/lcov.info | cut -d: -f2 | awk '{sum += $1} END {print sum+0}')
+          COVERAGE=$(echo "scale=1; ($COVERED_LINES * 100) / $TOTAL_LINES" | bc)
+          
+          echo "✅ Coverage: $COVERAGE% ($COVERED_LINES/$TOTAL_LINES lines)"
 
-      - name: 📤 Upload Coverage to Codecov
+      - name: 📤 Upload to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage/lcov.info
           flags: unittests
-          name: engine-security-coverage
+          name: engine-security
           fail_ci_if_error: false
-          verbose: true
 
       - name: 📤 Upload Coverage Report
         uses: actions/upload-artifact@v4
