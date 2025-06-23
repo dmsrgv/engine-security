@@ -29,7 +29,7 @@
 - 🎯 **Pontuação Pana 100/100** - Qualidade máxima no pub.dev
 - 🔄 **CI/CD Automatizado** - Pipeline completo com GitHub Actions
 - 📱 **Android & iOS Exclusivo** - Otimizado para dispositivos móveis
-- 🛡️ **5 Detectores Especializados** - Frida, Root/Jailbreak, Emulator, Debugger, GPS Fake
+- 🛡️ **6 Detectores Especializados** - Frida, Root/Jailbreak, HTTPS Pinning, GPS Fake, Emulator, Debugger
 - ⚡ **Detecção Assíncrona** - Performance otimizada
 - 🎨 **API Intuitiva** - Fácil integração e uso
 - 📊 **Sistema de Confiança** - Níveis de confiança calibrados
@@ -41,7 +41,7 @@ Adicione ao seu `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  engine_security: ^1.0.0
+  engine_security: ^1.2.0
 ```
 
 Execute:
@@ -81,9 +81,10 @@ Future<void> performFullSecurityCheck() async {
   final detectors = [
     EngineFridaDetector(),
     EngineRootDetector(),
+    EngineHttpsPinningDetector(),
+    EngineGpsFakeDetector(),
     EngineEmulatorDetector(),
     EngineDebuggerDetector(),
-    EngineGpsFakeDetector(),
   ];
   
   print('🔍 Executando verificação completa de segurança...\n');
@@ -111,84 +112,320 @@ Future<void> performFullSecurityCheck() async {
 - **Plataformas**: Android, iOS
 
 ### 2. 🔑 Root/Jailbreak Detector (`EngineRootDetector`)
-- **Ameaça**: `SecurityThreatType.rootJailbreak`
+- **Ameaça**: `EngineSecurityThreatType.rootJailbreak`
 - **Confiança**: 90%
 - **Métodos**: Arquivos de sistema, apps instalados, permissões
 - **Plataformas**: Android, iOS
 
-### 3. 📱 Emulator Detector (`EngineEmulatorDetector`)
-- **Ameaça**: `SecurityThreatType.emulator`
-- **Confiança**: 85%
-- **Métodos**: Hardware, sensores, características do sistema
+### 3. 🔒 HTTPS Certificate Pinning Detector (`EngineHttpsPinningDetector`)
+- **Ameaça**: `EngineSecurityThreatType.httpsPinning`
+- **Confiança**: 95%
+- **Métodos**: Validação de certificados SSL/TLS, fingerprints SHA-256
 - **Plataformas**: Android, iOS
+- **Formatos**: Base64 e Hexadecimal
 
-### 4. 🐛 Debugger Detector (`EngineDebuggerDetector`)
-- **Ameaça**: `SecurityThreatType.debugger`
-- **Confiança**: 85%
-- **Métodos**: Processos de debug, timing attacks
-- **Plataformas**: Android, iOS
-
-### 5. 🗺️ GPS Fake Detector (`EngineGpsFakeDetector`)
-- **Ameaça**: `SecurityThreatType.gpsFake`
+### 4. 🗺️ GPS Fake Detector (`EngineGpsFakeDetector`)
+- **Ameaça**: `EngineSecurityThreatType.gpsFake`
 - **Confiança**: 90%
 - **Métodos**: Mock location, apps falsos, consistência GPS, análise de localização
 - **Plataformas**: Android, iOS
 
-## 📊 Modelos de Dados
+### 5. 📱 Emulator Detector (`EngineEmulatorDetector`)
+- **Ameaça**: `EngineSecurityThreatType.emulator`
+- **Confiança**: 85%
+- **Métodos**: Hardware, sensores, características do sistema
+- **Plataformas**: Android, iOS
 
-### SecurityCheckModel
+### 6. 🐛 Debugger Detector (`EngineDebuggerDetector`)
+- **Ameaça**: `EngineSecurityThreatType.debugger`
+- **Confiança**: 85%
+- **Métodos**: Processos de debug, timing attacks
+- **Plataformas**: Android, iOS
+
+## 🔒 HTTPS Certificate Pinning
+
+O Engine Security inclui um sistema robusto de certificate pinning que protege contra ataques man-in-the-middle e interceptação de tráfego.
+
+### Configuração Básica
 
 ```dart
-class SecurityCheckModel {
+import 'package:engine_security/engine_security.dart';
+import 'dart:io';
+
+void setupCertificatePinning() {
+  // Configurar pins para diferentes domínios
+  final pins = [
+    EngineCertificatePinModel(
+      hostname: 'api.example.com',
+      pins: [
+        'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=', // SHA-256 em base64
+        '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', // SHA-256 em hex
+      ],
+      includeSubdomains: true,
+      enforcePinning: true,
+    ),
+    EngineCertificatePinModel(
+      hostname: 'stmr.tech',
+      pins: [
+        '17a8d38a1f559246194bccae62a794ff80d419e849fa78811a4910d7283c1f75', // SHA-256 fingerprint real
+      ],
+      includeSubdomains: true,
+      enforcePinning: true,
+    ),
+  ];
+
+  // Configurar HttpOverrides global
+  final httpOverrides = EngineSecurityHttpOverrides(
+    pinnedCertificates: pins,
+    onPinningValidation: (hostname, isValid, error) {
+      print('Validação de pin para $hostname: ${isValid ? 'OK' : 'FALHA'}');
+      if (error != null) print('Erro: $error');
+    },
+  );
+
+  HttpOverrides.global = httpOverrides;
+}
+```
+
+### Detector de Certificate Pinning
+
+```dart
+Future<void> checkCertificatePinning() async {
+  final detector = EngineHttpsPinningDetector();
+  final result = await detector.performCheck();
+  
+  if (!result.isSecure) {
+    print('Certificate pinning não está configurado!');
+    print('Severidade: ${result.threatType.severityLevel}');
+  }
+}
+```
+
+### Exemplo Completo com stmr.tech
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:engine_security/engine_security.dart';
+import 'package:http/http.dart' as http;
+import 'dart:io';
+
+class CertificatePinningDemo extends StatefulWidget {
+  @override
+  _CertificatePinningDemoState createState() => _CertificatePinningDemoState();
+}
+
+class _CertificatePinningDemoState extends State<CertificatePinningDemo> {
+  String _validationStatus = 'Não testado';
+  String _detectorStatus = 'Não verificado';
+
+  @override
+  void initState() {
+    super.initState();
+    _setupCertificatePinning();
+  }
+
+  void _setupCertificatePinning() {
+    final pins = [
+      EngineCertificatePinModel(
+        hostname: 'stmr.tech',
+        pins: ['17a8d38a1f559246194bccae62a794ff80d419e849fa78811a4910d7283c1f75'], // SHA-256 fingerprint real
+        enforcePinning: true,
+        includeSubdomains: true,
+      ),
+    ];
+
+    HttpOverrides.global = EngineSecurityHttpOverrides(
+      pinnedCertificates: pins,
+      onPinningValidation: (hostname, isValid, error) {
+        setState(() {
+          _validationStatus = '$hostname: ${isValid ? 'VÁLIDO' : 'INVÁLIDO'}';
+          if (error != null) _validationStatus += ' - $error';
+        });
+      },
+    );
+  }
+
+  Future<void> _testHttpsConnection() async {
+    try {
+      final response = await http.get(Uri.parse('https://stmr.tech'));
+      print('Conexão HTTPS bem-sucedida: ${response.statusCode}');
+    } catch (e) {
+      print('Erro na conexão HTTPS: $e');
+    }
+  }
+
+  Future<void> _runPinningDetector() async {
+    final detector = EngineHttpsPinningDetector();
+    final result = await detector.performCheck();
+    
+    setState(() {
+      _detectorStatus = result.isSecure ? 
+        'CONFIGURADO - Certificate pinning ativo' : 
+        'NÃO CONFIGURADO - ${result.details}';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Certificate Pinning Demo')),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Status do Detector:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(_detectorStatus),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Status da Validação:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(_validationStatus),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _runPinningDetector,
+              child: Text('Verificar Certificate Pinning'),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: _testHttpsConnection,
+              child: Text('Testar Conexão HTTPS com stmr.tech'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+## 📊 Modelos de Dados
+
+### EngineSecurityCheckModel
+
+```dart
+class EngineSecurityCheckModel {
   final bool isSecure;
-  final SecurityThreatType threatType;
+  final EngineSecurityThreatType threatType;
   final double confidence;
   final String? details;
   final String? detectionMethod;
   final DateTime? timestamp;
   
-  // Factories
-  SecurityCheckModel.secure({...});
-  SecurityCheckModel.threat({required SecurityThreatType threatType, ...});
+  EngineSecurityCheckModel.secure({...});
+  EngineSecurityCheckModel.threat({required EngineSecurityThreatType threatType, ...});
 }
 ```
 
-### DetectorInfoModel
+### EngineDetectorInfoModel
 
 ```dart
-class DetectorInfoModel {
+class EngineDetectorInfoModel {
   final String name;
-  final SecurityThreatType threatType;
+  final EngineSecurityThreatType threatType;
   final bool enabled;
   final String platform;
 }
 ```
 
-### SecurityThreatType
+### EngineCertificatePinModel
 
 ```dart
-enum SecurityThreatType {
-  unknown,      // Severidade: 5
-  frida,        // Severidade: 9
-  emulator,     // Severidade: 6
-  rootJailbreak,// Severidade: 8
-  debugger,     // Severidade: 2
-  gpsFake,      // Severidade: 7
+class EngineCertificatePinModel {
+  final String hostname;
+  final List<String> pins; // SHA-256 em base64 ou hexadecimal
+  final bool includeSubdomains;
+  final bool enforcePinning;
+  
+  // Métodos de validação
+  bool isValidPinFormat(String pin);
+  bool matchesHostname(String host);
+}
+```
+
+### EngineSecurityThreatType
+
+```dart
+enum EngineSecurityThreatType {
+  unknown,        // Severidade: 5
+  frida,          // Severidade: 9
+  rootJailbreak,  // Severidade: 8
+  httpsPinning,   // Severidade: 8
+  gpsFake,        // Severidade: 7
+  emulator,       // Severidade: 6
+  debugger,       // Severidade: 2
 }
 ```
 
 ## 🔧 Interface
 
-### ISecurityDetector
+### IEngineSecurityDetector
 
 ```dart
-abstract class ISecurityDetector {
-  SecurityThreatType get threatType;
+abstract class IEngineSecurityDetector {
+  EngineSecurityThreatType get threatType;
   String get detectorName;
-  Future<SecurityCheckModel> performCheck();
+  Future<EngineSecurityCheckModel> detect();
   bool get isAvailable;
-  DetectorInfoModel get detectorInfo;
+  EngineDetectorInfoModel get detectorInfo;
 }
+```
+
+## 🛠️ Obtendo Fingerprints de Certificados
+
+Para usar o certificate pinning, você precisa obter o fingerprint SHA-256 do certificado do seu servidor:
+
+### Método 1: Usando Engine Security (Automático)
+```dart
+// Obter o fingerprint diretamente do servidor ativo
+final pinModel = await EngineHttpsPinningDetector.createPinFromLiveHost('stmr.tech');
+print('Fingerprints obtidos: ${pinModel?.pins}');
+```
+
+### Método 2: OpenSSL
+```bash
+echo | openssl s_client -connect stmr.tech:443 2>/dev/null | openssl x509 -fingerprint -sha256 -noout
+```
+
+### Método 3: Chrome DevTools
+1. Abra o site no Chrome
+2. F12 → Security → View Certificate
+3. Copie o SHA-256 fingerprint
+
+### Método 4: A partir de arquivo
+```dart
+// Se você tem um arquivo .crt ou .pem
+final pinModel = await EngineHttpsPinningDetector.createPinFromCertificateFile(
+  'api.example.com',
+  '/path/to/certificate.crt',
+);
+```
+
+### Método 5: Hash conhecido
+```dart
+// Se você já tem o hash SHA-256
+final pinModel = EngineHttpsPinningDetector.createPinFromHash(
+  'stmr.tech',
+  '17a8d38a1f559246194bccae62a794ff80d419e849fa78811a4910d7283c1f75',
+);
 ```
 
 ## 📱 Exemplos

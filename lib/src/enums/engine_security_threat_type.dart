@@ -32,6 +32,12 @@ enum EngineSecurityThreatType {
     displayName: 'GPS Fake Detection',
     description: 'GPS location spoofing or fake GPS app detected',
     severityLevel: 7,
+  ),
+
+  httpsPinning(
+    displayName: 'HTTPS Certificate Pinning',
+    description: 'HTTPS certificate pinning validation failed or bypassed',
+    severityLevel: 8,
   );
 
   final String displayName;

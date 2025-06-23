@@ -12,6 +12,7 @@ void main() {
           EngineSecurityThreatType.rootJailbreak,
           EngineSecurityThreatType.debugger,
           EngineSecurityThreatType.gpsFake,
+          EngineSecurityThreatType.httpsPinning,
         ];
 
         expect(EngineSecurityThreatType.values, containsAll(expectedValues));
@@ -25,6 +26,7 @@ void main() {
         expect(EngineSecurityThreatType.rootJailbreak, isNotNull);
         expect(EngineSecurityThreatType.debugger, isNotNull);
         expect(EngineSecurityThreatType.gpsFake, isNotNull);
+        expect(EngineSecurityThreatType.httpsPinning, isNotNull);
       });
     });
 
@@ -36,6 +38,7 @@ void main() {
         expect(EngineSecurityThreatType.rootJailbreak.displayName, equals('Root/Jailbreak Detection'));
         expect(EngineSecurityThreatType.debugger.displayName, equals('Debugger Detection'));
         expect(EngineSecurityThreatType.gpsFake.displayName, equals('GPS Fake Detection'));
+        expect(EngineSecurityThreatType.httpsPinning.displayName, equals('HTTPS Certificate Pinning'));
       });
 
       test('should have correct description for all values', () {
@@ -48,6 +51,10 @@ void main() {
         );
         expect(EngineSecurityThreatType.debugger.description, equals('Debugger attachment detected'));
         expect(EngineSecurityThreatType.gpsFake.description, equals('GPS location spoofing or fake GPS app detected'));
+        expect(
+          EngineSecurityThreatType.httpsPinning.description,
+          equals('HTTPS certificate pinning validation failed or bypassed'),
+        );
       });
 
       test('should have correct severityLevel for all values', () {
@@ -57,6 +64,7 @@ void main() {
         expect(EngineSecurityThreatType.rootJailbreak.severityLevel, equals(8));
         expect(EngineSecurityThreatType.debugger.severityLevel, equals(2));
         expect(EngineSecurityThreatType.gpsFake.severityLevel, equals(7));
+        expect(EngineSecurityThreatType.httpsPinning.severityLevel, equals(8));
       });
     });
 
@@ -68,6 +76,7 @@ void main() {
         expect(EngineSecurityThreatType.unknown, equals(EngineSecurityThreatType.unknown));
         expect(EngineSecurityThreatType.rootJailbreak, equals(EngineSecurityThreatType.rootJailbreak));
         expect(EngineSecurityThreatType.gpsFake, equals(EngineSecurityThreatType.gpsFake));
+        expect(EngineSecurityThreatType.httpsPinning, equals(EngineSecurityThreatType.httpsPinning));
       });
 
       test('should not be equal to different enum values', () {
@@ -91,6 +100,7 @@ void main() {
         expect(EngineSecurityThreatType.unknown.toString(), contains('SecurityThreatType.unknown'));
         expect(EngineSecurityThreatType.rootJailbreak.toString(), contains('SecurityThreatType.rootJailbreak'));
         expect(EngineSecurityThreatType.gpsFake.toString(), contains('SecurityThreatType.gpsFake'));
+        expect(EngineSecurityThreatType.httpsPinning.toString(), contains('SecurityThreatType.httpsPinning'));
       });
     });
 
@@ -112,6 +122,7 @@ void main() {
         expect(list, contains(EngineSecurityThreatType.unknown));
         expect(list, contains(EngineSecurityThreatType.rootJailbreak));
         expect(list, contains(EngineSecurityThreatType.gpsFake));
+        expect(list, contains(EngineSecurityThreatType.httpsPinning));
       });
 
       test('should work with set operations', () {
@@ -128,6 +139,7 @@ void main() {
         expect(highSeverityThreats, contains(EngineSecurityThreatType.frida));
         expect(highSeverityThreats, contains(EngineSecurityThreatType.rootJailbreak));
         expect(highSeverityThreats, contains(EngineSecurityThreatType.gpsFake));
+        expect(highSeverityThreats, contains(EngineSecurityThreatType.httpsPinning));
         expect(highSeverityThreats, isNot(contains(EngineSecurityThreatType.debugger)));
       });
 
@@ -140,6 +152,7 @@ void main() {
         expect(displayNames, contains('Unknown Threat'));
         expect(displayNames, contains('Root/Jailbreak Detection'));
         expect(displayNames, contains('GPS Fake Detection'));
+        expect(displayNames, contains('HTTPS Certificate Pinning'));
       });
     });
 
@@ -159,6 +172,8 @@ void main() {
               return 'Unknown threat';
             case EngineSecurityThreatType.gpsFake:
               return 'GPS fake detected';
+            case EngineSecurityThreatType.httpsPinning:
+              return 'HTTPS pinning issue detected';
           }
         }
 
@@ -168,6 +183,7 @@ void main() {
         expect(getTypeDescription(EngineSecurityThreatType.rootJailbreak), equals('Device is rooted/jailbroken'));
         expect(getTypeDescription(EngineSecurityThreatType.unknown), equals('Unknown threat'));
         expect(getTypeDescription(EngineSecurityThreatType.gpsFake), equals('GPS fake detected'));
+        expect(getTypeDescription(EngineSecurityThreatType.httpsPinning), equals('HTTPS pinning issue detected'));
       });
 
       test('should maintain enum order consistency', () {
@@ -178,6 +194,7 @@ void main() {
         expect(valuesList.indexOf(EngineSecurityThreatType.rootJailbreak), equals(3));
         expect(valuesList.indexOf(EngineSecurityThreatType.debugger), equals(4));
         expect(valuesList.indexOf(EngineSecurityThreatType.gpsFake), equals(5));
+        expect(valuesList.indexOf(EngineSecurityThreatType.httpsPinning), equals(6));
       });
 
       test('should work with json serialization scenarios', () {
@@ -189,6 +206,7 @@ void main() {
         expect(enumNames, contains('rootJailbreak'));
         expect(enumNames, contains('debugger'));
         expect(enumNames, contains('gpsFake'));
+        expect(enumNames, contains('httpsPinning'));
       });
     });
 
@@ -205,7 +223,8 @@ void main() {
 
         expect(criticalThreats, contains(EngineSecurityThreatType.frida));
         expect(criticalThreats, contains(EngineSecurityThreatType.rootJailbreak));
-        expect(criticalThreats.length, equals(2));
+        expect(criticalThreats, contains(EngineSecurityThreatType.httpsPinning));
+        expect(criticalThreats.length, equals(3));
       });
 
       test('should order threats by severity correctly', () {
@@ -251,7 +270,7 @@ void main() {
             .reduce((final a, final b) => a + b);
 
         final averageSeverity = totalSeverity / EngineSecurityThreatType.values.length;
-        expect(averageSeverity, closeTo(6.17, 0.1));
+        expect(averageSeverity, closeTo(6.43, 0.1));
       });
     });
   });

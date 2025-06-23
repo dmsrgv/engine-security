@@ -5,6 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2024-12-27
+
+### Added
+- **HTTPS Certificate Pinning** (`EngineHttpsPinningDetector`) - Sistema avançado de validação de certificados SSL/TLS
+  - `EngineCertificatePinModel` para configuração de pins por domínio
+  - `EngineSecurityHttpOverrides` para validação transparente de requisições HTTP
+  - Suporte a fingerprints SHA-256 em formato base64 e hexadecimal
+  - Configuração flexível por hostname com suporte a subdomínios
+  - Cache de validação para otimização de performance
+  - Modo enforcement (falha na validação) vs. modo reporting (apenas notifica)
+  - Callbacks para eventos de validação de certificados
+  - Nível de severidade: 8 (crítico)
+  - Detecção de bypass attempts e configurações inadequadas
+
+### Enhanced
+- Expandido enum `EngineSecurityThreatType` com novo tipo `httpsPinning`
+- Criada estrutura `lib/src/network/` para componentes de rede
+- Adicionados métodos estáticos para configuração rápida:
+  - `EngineHttpsPinningDetector.isHttpOverridesConfigured()`
+  - `EngineHttpsPinningDetector.hasValidPinConfiguration()`
+  - `EngineHttpsPinningDetector.testConnectivity()`
+
+### Dependencies
+- Adicionado `crypto: ^3.0.5` para cálculos de hash SHA-256
+
+### Security Features
+- Validação automática de certificados em tempo real
+- Proteção contra ataques man-in-the-middle
+- Detecção de proxies maliciosos e interceptação de tráfego
+- Suporte a múltiplos pins por domínio para rotação de certificados
+- Validação de formato de pins com regex otimizado
+
+### Examples
+- Exemplo completo de configuração de certificate pinning
+- Demo com teste real usando domínio `stmr.tech`
+- Documentação expandida com guias de obtenção de fingerprints
+
+### Tests
+- 87 novos testes unitários para certificate pinning
+- Testes de validação de formato de pins
+- Testes de matching de hostnames e subdomínios
+- Testes de configuração e enforcement
+- 100% de cobertura de código mantida (235 testes totais)
+
+### Breaking Changes
+- Renomenação de todas as classes para seguir padrão "Engine":
+  - `SecurityThreatType` → `EngineSecurityThreatType`
+  - `DetectorInfoModel` → `EngineDetectorInfoModel`
+  - `SecurityCheckModel` → `EngineSecurityCheckModel`
+  - `ISecurityDetector` → `IEngineSecurityDetector`
+
 ## [1.1.0] - 2024-12-27
 
 ### Added

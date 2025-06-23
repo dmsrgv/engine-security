@@ -107,6 +107,15 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   SecurityCard(
+                    title: 'HTTPS Certificate Pinning',
+                    icon: Icons.https,
+                    description: 'Verifica configuração de certificate pinning para sites seguros',
+                    testResult: testResults['HTTPS Pinning'],
+                    isRunning: testResults['HTTPS Pinning']?.isRunning ?? false,
+                    onTest: () => ref.read(securityTestProvider.notifier).runDetectorTest('HTTPS Pinning'),
+                  ),
+                  const SizedBox(height: 16),
+                  SecurityCard(
                     title: 'Detecção Emulador',
                     icon: Icons.phone_android,
                     description: 'Identifica se está executando em emulador/simulador',

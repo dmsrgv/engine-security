@@ -66,6 +66,36 @@ class SecurityTestNotifier extends StateNotifier<Map<String, DetectorTestResult?
         case 'GPS Fake':
           detector = EngineGpsFakeDetector(enabled: true);
           break;
+        case 'HTTPS Pinning':
+          // Configurar certificados com pins válidos para demonstração
+          final examplePins = [
+            EngineCertificatePinModel(
+              hostname: 'stmr.tech',
+              pins: [
+                '17a8d38a1f559246194bccae62a794ff80d419e849fa78811a4910d7283c1f75', // SHA-256 fingerprint real da STMR
+                'a1b2c3d4e5f67890123456789012345678901234567890123456789012345678', // Pin de backup válido (64 chars hex)
+              ],
+              includeSubdomains: true,
+              enforcePinning: true,
+            ),
+            EngineCertificatePinModel(
+              hostname: 'google.com',
+              pins: [
+                'f3c2b1a098765432109876543210987654321098765432109876543210987654', // Pin primário (64 chars hex)
+                'e4d3c2b109876543210987654321098765432109876543210987654321098765', // Pin de backup (64 chars hex)
+              ],
+              includeSubdomains: true,
+              enforcePinning: true,
+            ),
+          ];
+
+          detector = EngineHttpsPinningDetector(
+            enabled: true,
+            pinnedCertificates: examplePins,
+            testConnectivity: false, // Desabilitar teste de conectividade no demo
+            strictMode: false,
+          );
+          break;
         default:
           throw Exception('Detector não encontrado: $detectorName');
       }
@@ -104,7 +134,7 @@ class SecurityTestNotifier extends StateNotifier<Map<String, DetectorTestResult?
   }
 
   Future<void> runAllTests() async {
-    final detectors = ['Frida', 'Root/Jailbreak', 'Emulator', 'Debugger', 'GPS Fake'];
+    final detectors = ['Frida', 'Root/Jailbreak', 'HTTPS Pinning', 'GPS Fake', 'Emulator', 'Debugger'];
 
     for (final detector in detectors) {
       await runDetectorTest(detector);
