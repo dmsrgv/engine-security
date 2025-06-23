@@ -1,7 +1,7 @@
 # 🛡️ Engine Security
 
-[![CI/CD Pipeline](https://github.com/thiagomoreira/engine-security/actions/workflows/ci.yml/badge.svg)](https://github.com/thiagomoreira/engine-security/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/thiagomoreira/engine-security/branch/main/graph/badge.svg)](https://codecov.io/gh/thiagomoreira/engine-security)
+[![CI/CD Pipeline](https://github.com/moreirawbmaster/engine-security/actions/workflows/ci.yml/badge.svg)](https://github.com/moreirawbmaster/engine-security/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/moreirawbmaster/engine-security/branch/main/graph/badge.svg)](https://codecov.io/gh/moreirawbmaster/engine-security)
 [![Pub Version](https://img.shields.io/pub/v/engine_security)](https://pub.dev/packages/engine_security)
 [![Pana Score](https://img.shields.io/badge/pana-100%2F100-brightgreen)](https://pub.dev/packages/engine_security/score)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -648,8 +648,8 @@ dart pub global run pana
 
 | Pipeline | Status | Descrição |
 |----------|--------|-----------|
-| Build | [![CI/CD Pipeline](https://github.com/thiagomoreira/engine-security/actions/workflows/ci.yml/badge.svg)](https://github.com/thiagomoreira/engine-security/actions/workflows/ci.yml) | Análise, testes e build |
-| Coverage | [![codecov](https://codecov.io/gh/thiagomoreira/engine-security/branch/main/graph/badge.svg)](https://codecov.io/gh/thiagomoreira/engine-security) | Cobertura de testes |
+| Build | [![CI/CD Pipeline](https://github.com/moreirawbmaster/engine-security/actions/workflows/ci.yml/badge.svg)](https://github.com/moreirawbmaster/engine-security/actions/workflows/ci.yml) | Análise, testes e build |
+| Coverage | [![codecov](https://codecov.io/gh/moreirawbmaster/engine-security/branch/main/graph/badge.svg)](https://codecov.io/gh/moreirawbmaster/engine-security) | Cobertura de testes |
 | Quality | [![Pana Score](https://img.shields.io/badge/pana-100%2F100-brightgreen)](https://pub.dev/packages/engine_security/score) | Qualidade do código |
 | Publish | [![Pub Version](https://img.shields.io/pub/v/engine_security)](https://pub.dev/packages/engine_security) | Versão publicada |
 
