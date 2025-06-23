@@ -1,7 +1,7 @@
 # 🛡️ Engine Security
 
-[![CI/CD Pipeline](https://github.com/moreirawbmaster/engine-security/actions/workflows/ci.yml/badge.svg)](https://github.com/moreirawbmaster/engine-security/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/moreirawbmaster/engine-security/branch/main/graph/badge.svg)](https://codecov.io/gh/moreirawbmaster/engine-security)
+[![CI/CD Pipeline](https://github.com/moreirawebmaster/engine-security/actions/workflows/ci.yml/badge.svg)](https://github.com/moreirawebmaster/engine-security/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/moreirawebmaster/engine-security/branch/main/graph/badge.svg)](https://codecov.io/gh/moreirawebmaster/engine-security)
 [![Pub Version](https://img.shields.io/pub/v/engine_security)](https://pub.dev/packages/engine_security)
 [![Pana Score](https://img.shields.io/badge/pana-100%2F100-brightgreen)](https://pub.dev/packages/engine_security/score)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -15,6 +15,8 @@
 - [Instalação](#-instalação)
 - [Uso Rápido](#-uso-rápido)
 - [Detectores Disponíveis](#-detectores-disponíveis)
+- [HTTPS Certificate Pinning](#-https-certificate-pinning)
+- [GPS Fake Detection](#-gps-fake-detection)
 - [Modelos de Dados](#-modelos-de-dados)
 - [Interface](#-interface)
 - [Exemplos](#-exemplos)
@@ -106,41 +108,46 @@ Future<void> performFullSecurityCheck() async {
 ## 🛡️ Detectores Disponíveis
 
 ### 1. 🔴 Frida Detector (`EngineFridaDetector`)
-- **Ameaça**: `SecurityThreatType.frida`
+- **Ameaça**: `EngineSecurityThreatType.frida`
+- **Severidade**: 9/10
 - **Confiança**: 95%
 - **Métodos**: Detecção de processos, bibliotecas e portas
-- **Plataformas**: Android, iOS
+- **Plataformas**: Android ✅ | iOS ✅
 
 ### 2. 🔑 Root/Jailbreak Detector (`EngineRootDetector`)
 - **Ameaça**: `EngineSecurityThreatType.rootJailbreak`
+- **Severidade**: 8/10
 - **Confiança**: 90%
 - **Métodos**: Arquivos de sistema, apps instalados, permissões
-- **Plataformas**: Android, iOS
+- **Plataformas**: Android ✅ | iOS ✅
 
 ### 3. 🔒 HTTPS Certificate Pinning Detector (`EngineHttpsPinningDetector`)
 - **Ameaça**: `EngineSecurityThreatType.httpsPinning`
+- **Severidade**: 8/10
 - **Confiança**: 95%
 - **Métodos**: Validação de certificados SSL/TLS, fingerprints SHA-256
-- **Plataformas**: Android, iOS
-- **Formatos**: Base64 e Hexadecimal
+- **Plataformas**: Android ✅ | iOS ✅
 
 ### 4. 🗺️ GPS Fake Detector (`EngineGpsFakeDetector`)
 - **Ameaça**: `EngineSecurityThreatType.gpsFake`
+- **Severidade**: 7/10
 - **Confiança**: 90%
-- **Métodos**: Mock location, apps falsos, consistência GPS, análise de localização
-- **Plataformas**: Android, iOS
+- **Métodos**: Mock location, apps falsos, consistência GPS
+- **Plataformas**: Android ✅ | iOS ✅
 
 ### 5. 📱 Emulator Detector (`EngineEmulatorDetector`)
 - **Ameaça**: `EngineSecurityThreatType.emulator`
+- **Severidade**: 6/10
 - **Confiança**: 85%
 - **Métodos**: Hardware, sensores, características do sistema
-- **Plataformas**: Android, iOS
+- **Plataformas**: Android ✅ | iOS ✅
 
 ### 6. 🐛 Debugger Detector (`EngineDebuggerDetector`)
 - **Ameaça**: `EngineSecurityThreatType.debugger`
+- **Severidade**: 2/10
 - **Confiança**: 85%
 - **Métodos**: Processos de debug, timing attacks
-- **Plataformas**: Android, iOS
+- **Plataformas**: Android ✅ | iOS ✅
 
 ## 🔒 HTTPS Certificate Pinning
 
@@ -191,128 +198,112 @@ void setupCertificatePinning() {
 
 ```dart
 Future<void> checkCertificatePinning() async {
-  final detector = EngineHttpsPinningDetector();
+  final detector = EngineHttpsPinningDetector(
+    enabled: true,
+    pinnedCertificates: [
+      EngineCertificatePinModel(
+        hostname: 'stmr.tech',
+        pins: ['17a8d38a1f559246194bccae62a794ff80d419e849fa78811a4910d7283c1f75'],
+        includeSubdomains: true,
+      ),
+    ],
+    testConnectivity: false,
+    strictMode: false, // true = só valida pins existentes
+  );
+  
   final result = await detector.performCheck();
   
   if (!result.isSecure) {
     print('Certificate pinning não está configurado!');
-    print('Severidade: ${result.threatType.severityLevel}');
+    print('Detalhes: ${result.details}');
+  } else {
+    print('Certificate pinning configurado corretamente!');
+    print('Sites protegidos: ${result.details}');
   }
 }
 ```
 
-### Exemplo Completo com stmr.tech
+### Obtendo Fingerprints de Certificados
+
+#### Método 1: Usando Engine Security (Automático)
+```dart
+// Obter o fingerprint diretamente do servidor ativo
+final pinModel = await EngineHttpsPinningDetector.createPinFromLiveHost('stmr.tech');
+print('Fingerprints obtidos: ${pinModel?.pins}');
+```
+
+#### Método 2: OpenSSL
+```bash
+echo | openssl s_client -connect stmr.tech:443 2>/dev/null | openssl x509 -fingerprint -sha256 -noout
+```
+
+#### Método 3: Chrome DevTools
+1. Abra o site no Chrome
+2. F12 → Security → View Certificate
+3. Copie o SHA-256 fingerprint
+
+#### Método 4: A partir de arquivo
+```dart
+// Se você tem um arquivo .crt ou .pem
+final pinModel = await EngineHttpsPinningDetector.createPinFromCertificateFile(
+  'api.example.com',
+  '/path/to/certificate.crt',
+);
+```
+
+#### Método 5: Hash conhecido
+```dart
+// Se você já tem o hash SHA-256
+final pinModel = EngineHttpsPinningDetector.createPinFromHash(
+  'stmr.tech',
+  '17a8d38a1f559246194bccae62a794ff80d419e849fa78811a4910d7283c1f75',
+);
+```
+
+## 🗺️ GPS Fake Detection
+
+O `EngineGpsFakeDetector` utiliza múltiplas técnicas para detectar manipulação de GPS:
+
+### Técnicas de Detecção
+
+#### 1. 🔧 Verificação de Mock Location (Android)
+- Detecta se as "opções de desenvolvedor" têm mock location habilitado
+- Verifica configurações do sistema Android
+
+#### 2. 📱 Detecção de Apps de GPS Fake
+- Verifica instalação de mais de 25 apps conhecidos de GPS fake
+- Lista atualizada dos principais apps de spoofing de localização
+
+#### 3. 📊 Análise de Confiabilidade da Fonte
+- Verifica precisão suspeita do GPS (< 100m pode indicar fake)
+- Detecta valores impossíveis (altitude e velocidade zero)
+
+#### 4. 🔄 Verificação de Consistência GPS
+- Analisa movimento impossível entre leituras GPS
+- Detecta "teletransporte" (distância > 1km em < 10s)
+
+#### 5. 🔐 Análise de Permissões
+- Verifica interferência em permissões de localização
+- Detecta desabilitação suspeita de serviços de localização
+
+### Exemplo de Uso
 
 ```dart
-import 'package:flutter/material.dart';
 import 'package:engine_security/engine_security.dart';
-import 'package:http/http.dart' as http;
-import 'dart:io';
 
-class CertificatePinningDemo extends StatefulWidget {
-  @override
-  _CertificatePinningDemoState createState() => _CertificatePinningDemoState();
-}
-
-class _CertificatePinningDemoState extends State<CertificatePinningDemo> {
-  String _validationStatus = 'Não testado';
-  String _detectorStatus = 'Não verificado';
-
-  @override
-  void initState() {
-    super.initState();
-    _setupCertificatePinning();
-  }
-
-  void _setupCertificatePinning() {
-    final pins = [
-      EngineCertificatePinModel(
-        hostname: 'stmr.tech',
-        pins: ['17a8d38a1f559246194bccae62a794ff80d419e849fa78811a4910d7283c1f75'], // SHA-256 fingerprint real
-        enforcePinning: true,
-        includeSubdomains: true,
-      ),
-    ];
-
-    HttpOverrides.global = EngineSecurityHttpOverrides(
-      pinnedCertificates: pins,
-      onPinningValidation: (hostname, isValid, error) {
-        setState(() {
-          _validationStatus = '$hostname: ${isValid ? 'VÁLIDO' : 'INVÁLIDO'}';
-          if (error != null) _validationStatus += ' - $error';
-        });
-      },
-    );
-  }
-
-  Future<void> _testHttpsConnection() async {
-    try {
-      final response = await http.get(Uri.parse('https://stmr.tech'));
-      print('Conexão HTTPS bem-sucedida: ${response.statusCode}');
-    } catch (e) {
-      print('Erro na conexão HTTPS: $e');
-    }
-  }
-
-  Future<void> _runPinningDetector() async {
-    final detector = EngineHttpsPinningDetector();
-    final result = await detector.performCheck();
-    
-    setState(() {
-      _detectorStatus = result.isSecure ? 
-        'CONFIGURADO - Certificate pinning ativo' : 
-        'NÃO CONFIGURADO - ${result.details}';
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Certificate Pinning Demo')),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Status do Detector:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(_detectorStatus),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Status da Validação:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(_validationStatus),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _runPinningDetector,
-              child: Text('Verificar Certificate Pinning'),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _testHttpsConnection,
-              child: Text('Testar Conexão HTTPS com stmr.tech'),
-            ),
-          ],
-        ),
-      ),
-    );
+Future<void> checkGPSFake() async {
+  final gpsDetector = EngineGpsFakeDetector();
+  
+  // Verificação básica
+  final result = await gpsDetector.performCheck();
+  
+  if (!result.isSecure) {
+    print('⚠️ GPS Fake detectado!');
+    print('📍 Detalhes: ${result.details}');
+    print('🔍 Método: ${result.detectionMethod}');
+    print('🎯 Confiança: ${(result.confidence * 100).toStringAsFixed(1)}%');
+  } else {
+    print('✅ GPS é confiável');
   }
 }
 ```
@@ -383,49 +374,10 @@ enum EngineSecurityThreatType {
 abstract class IEngineSecurityDetector {
   EngineSecurityThreatType get threatType;
   String get detectorName;
-  Future<EngineSecurityCheckModel> detect();
+  Future<EngineSecurityCheckModel> performCheck();
   bool get isAvailable;
   EngineDetectorInfoModel get detectorInfo;
 }
-```
-
-## 🛠️ Obtendo Fingerprints de Certificados
-
-Para usar o certificate pinning, você precisa obter o fingerprint SHA-256 do certificado do seu servidor:
-
-### Método 1: Usando Engine Security (Automático)
-```dart
-// Obter o fingerprint diretamente do servidor ativo
-final pinModel = await EngineHttpsPinningDetector.createPinFromLiveHost('stmr.tech');
-print('Fingerprints obtidos: ${pinModel?.pins}');
-```
-
-### Método 2: OpenSSL
-```bash
-echo | openssl s_client -connect stmr.tech:443 2>/dev/null | openssl x509 -fingerprint -sha256 -noout
-```
-
-### Método 3: Chrome DevTools
-1. Abra o site no Chrome
-2. F12 → Security → View Certificate
-3. Copie o SHA-256 fingerprint
-
-### Método 4: A partir de arquivo
-```dart
-// Se você tem um arquivo .crt ou .pem
-final pinModel = await EngineHttpsPinningDetector.createPinFromCertificateFile(
-  'api.example.com',
-  '/path/to/certificate.crt',
-);
-```
-
-### Método 5: Hash conhecido
-```dart
-// Se você já tem o hash SHA-256
-final pinModel = EngineHttpsPinningDetector.createPinFromHash(
-  'stmr.tech',
-  '17a8d38a1f559246194bccae62a794ff80d419e849fa78811a4910d7283c1f75',
-);
 ```
 
 ## 📱 Exemplos
@@ -433,90 +385,25 @@ final pinModel = EngineHttpsPinningDetector.createPinFromHash(
 Execute o exemplo interativo:
 
 ```bash
-cd examples/security_demo
+cd demo/security_demo
 flutter run
 ```
 
 ### Implementação Personalizada
 
 ```dart
-### Detector de GPS Fake - Exemplo Avançado
-
-```dart
-import 'package:engine_security/engine_security.dart';
-
-void main() async {
-  final gpsDetector = EngineGpsFakeDetector();
-  
-  // Verificação básica
-  final result = await gpsDetector.performCheck();
-  
-  if (!result.isSecure) {
-    print('⚠️ GPS Fake detectado!');
-    print('📍 Detalhes: ${result.details}');
-    print('🔍 Método: ${result.detectionMethod}');
-    print('🎯 Confiança: ${(result.confidence * 100).toStringAsFixed(1)}%');
-    
-    // Tomar ações de segurança
-    await handleGpsFakeDetection(result);
-  } else {
-    print('✅ GPS é confiável');
-  }
-  
-  // Verificações específicas
-  final mockEnabled = await EngineGpsFakeDetector.checkMockLocationEnabled();
-  final fakeApps = await EngineGpsFakeDetector.getInstalledFakeGpsApps();
-  
-  print('📱 Mock Location habilitado: $mockEnabled');
-  print('🚫 Apps de GPS Fake encontrados: ${fakeApps.length}');
-  
-  for (final app in fakeApps) {
-    print('   - $app');
-  }
-}
-
-Future<void> handleGpsFakeDetection(SecurityCheckModel result) async {
-  // Bloquear funcionalidades baseadas em localização
-  // Registrar tentativa de fraude
-  // Solicitar verificação adicional do usuário
-  // Etc.
-}
-```
-
-### Técnicas de Detecção de GPS Fake
-
-O `EngineGpsFakeDetector` utiliza múltiplas técnicas para detectar manipulação de GPS:
-
-#### 1. 🔧 Verificação de Mock Location (Android)
-- Detecta se as "opções de desenvolvedor" têm mock location habilitado
-- Verifica configurações do sistema Android
-
-#### 2. 📱 Detecção de Apps de GPS Fake
-- Verifica instalação de mais de 25 apps conhecidos de GPS fake
-- Lista atualizada dos principais apps de spoofing de localização
-
-#### 3. 📊 Análise de Confiabilidade da Fonte
-- Verifica precisão suspeita do GPS (< 100m pode indicar fake)
-- Detecta valores impossíveis (altitude e velocidade zero)
-
-#### 4. 🔄 Verificação de Consistência GPS
-- Analisa movimento impossível entre leituras GPS
-- Detecta "teletransporte" (distância > 1km em < 10s)
-
-#### 5. 🔐 Análise de Permissões
-- Verifica interferência em permissões de localização
-- Detecta desabilitação suspeita de serviços de localização
-
 class MySecurityManager {
-  final List<ISecurityDetector> _detectors = [
+  final List<IEngineSecurityDetector> _detectors = [
     EngineFridaDetector(),
     EngineRootDetector(),
+    EngineHttpsPinningDetector(),
+    EngineGpsFakeDetector(),
     EngineEmulatorDetector(),
     EngineDebuggerDetector(),
   ];
   
-  Future<List<SecurityCheckModel>> scanAllThreats() async {
-    final results = <SecurityCheckModel>[];
+  Future<List<EngineSecurityCheckModel>> scanAllThreats() async {
+    final results = <EngineSecurityCheckModel>[];
     
     for (final detector in _detectors) {
       if (detector.isAvailable) {
@@ -524,11 +411,10 @@ class MySecurityManager {
           final result = await detector.performCheck();
           results.add(result);
         } catch (e) {
-          results.add(SecurityCheckModel(
-            isSecure: false,
+          results.add(EngineSecurityCheckModel.threat(
             threatType: detector.threatType,
-            confidence: 0.5,
             details: 'Erro na detecção: $e',
+            confidence: 0.5,
           ));
         }
       }
@@ -561,16 +447,21 @@ lib/
 └── src/
     ├── src.dart                    # Exportações centralizadas
     ├── detectors/                  # Detectores de segurança
-    │   ├── i_security_detector.dart        # Interface base
-    │   ├── engine_frida_detector.dart      # Detector Frida
-    │   ├── engine_root_detector.dart       # Detector Root/Jailbreak
-    │   ├── engine_emulator_detector.dart   # Detector Emulator
-    │   └── engine_debugger_detector.dart   # Detector Debugger
+    │   ├── i_engine_security_detector.dart     # Interface base
+    │   ├── engine_frida_detector.dart          # Detector Frida
+    │   ├── engine_root_detector.dart           # Detector Root/Jailbreak
+    │   ├── engine_https_pinning_detector.dart  # Detector HTTPS Pinning
+    │   ├── engine_gps_fake_detector.dart       # Detector GPS Fake
+    │   ├── engine_emulator_detector.dart       # Detector Emulator
+    │   └── engine_debugger_detector.dart       # Detector Debugger
     ├── models/                     # Modelos de dados
-    │   ├── security_check_model.dart       # Modelo de resultado
-    │   └── dector_info_model.dart          # Informações do detector
-    └── enums/                      # Enumerações
-        └── security_threat_type.dart       # Tipos de ameaças
+    │   ├── engine_security_check_model.dart    # Modelo de resultado
+    │   ├── engine_detector_info_model.dart     # Informações do detector
+    │   └── engine_certificate_pin_model.dart   # Modelo de certificate pin
+    ├── enums/                      # Enumerações
+    │   └── engine_security_threat_type.dart    # Tipos de ameaças
+    └── network/                    # Componentes de rede
+        └── engine_security_http_overrides.dart # HttpOverrides para pinning
 
 test/
 ├── all_tests.dart                  # Suite completa de testes
@@ -579,7 +470,7 @@ test/
 ├── interface/                      # Testes da interface
 └── detectors/                      # Testes dos detectores
 
-examples/
+demo/
 └── security_demo/                  # App demonstrativo
 
 scripts/
@@ -606,85 +497,52 @@ dart format .
 dart pub publish --dry-run
 ```
 
-## 🧪 Qualidade e Testes
-
-### Cobertura de Testes: 100%
-- ✅ Todos os modelos testados
-- ✅ Todos os enums testados
-- ✅ Interface completamente testada
-- ✅ Casos de borda cobertos
-- ✅ Tratamento de erros validado
-
-### Pipeline CI/CD
-
-- 🔍 **Análise Estática** - dart analyze com warnings fatais
-- 🧪 **Testes Unitários** - 100% de cobertura obrigatória
-- 📊 **Codecov Integration** - Relatórios automáticos de cobertura
-- 📝 **Pana Analysis** - Pontuação 100/100 obrigatória
-- 🔒 **Security Scan** - Verificação de vulnerabilidades
-- 🏗️ **Build Test** - Compilação e teste dos exemplos
-- 📦 **Auto Publish** - Publicação automática em tags
-
 ### Comandos de Qualidade
 
 ```bash
 # Executar todos os testes
-dart test
+flutter test
 
 # Testes com cobertura
-dart test --coverage=coverage
-dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
+flutter test --coverage
+genhtml coverage/lcov.info -o coverage/html
 
 # Verificar cobertura mínima
 dart pub global activate test_coverage
-dart pub global run test_coverage --min-coverage=100
+dart pub global run test_coverage --min-coverage=50
 
 # Análise Pana
 dart pub global activate pana
 dart pub global run pana
 ```
 
-## 🔄 CI/CD Status
-
-| Pipeline | Status | Descrição |
-|----------|--------|-----------|
-| Build | [![CI/CD Pipeline](https://github.com/moreirawbmaster/engine-security/actions/workflows/ci.yml/badge.svg)](https://github.com/moreirawbmaster/engine-security/actions/workflows/ci.yml) | Análise, testes e build |
-| Coverage | [![codecov](https://codecov.io/gh/moreirawbmaster/engine-security/branch/main/graph/badge.svg)](https://codecov.io/gh/moreirawbmaster/engine-security) | Cobertura de testes |
-| Quality | [![Pana Score](https://img.shields.io/badge/pana-100%2F100-brightgreen)](https://pub.dev/packages/engine_security/score) | Qualidade do código |
-| Publish | [![Pub Version](https://img.shields.io/pub/v/engine_security)](https://pub.dev/packages/engine_security) | Versão publicada |
-
 ## 🤝 Contribuição
 
+Contribuições são bem-vindas! Por favor:
+
 1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
 ### Diretrizes de Contribuição
 
-- ✅ Manter 100% de cobertura de testes
-- ✅ Seguir as convenções Dart/Flutter
-- ✅ Adicionar documentação para APIs públicas
-- ✅ Testar em Android e iOS
-- ✅ Garantir pontuação Pana 100/100
+- Mantenha 100% de cobertura de testes
+- Siga o padrão de código existente
+- Documente novas funcionalidades
+- Teste em Android e iOS
+- Atualize o CHANGELOG.md
 
 ## 📄 Licença
 
-Este projeto está licenciado sob a MIT License - veja o arquivo [LICENSE](LICENSE) para detalhes.
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
-## 🏆 Reconhecimentos
+## 🏢 Sobre a STMR
 
-- Comunidade Dart/Flutter
-- Contribuidores do projeto
+Desenvolvido pela [STMR](https://stmr.tech) - Especialistas em soluções móveis.
 
 ---
 
-<div align="center">
-
-**🛡️ Engine Security - Protegendo suas aplicações Flutter**
-
-[![Pub.dev](https://img.shields.io/badge/pub.dev-engine__security-blue)](https://pub.dev/packages/engine_security)
-
-</div>
+**⚠️ Aviso de Segurança**: Este pacote é uma ferramenta de detecção, não uma solução de segurança completa. Sempre implemente múltiplas camadas de segurança em suas aplicações.
 

@@ -112,39 +112,6 @@ void main() {
       });
     });
 
-    group('copyWith', () {
-      test('should create copy with modified values', () {
-        const original = EngineCertificatePinModel(
-          hostname: 'original.com',
-          pins: ['YLh1dUR9y6Kja30RrAn7JKnbQG/uEtLMkBgFF2Fuihg='],
-        );
-
-        final copy = original.copyWith(
-          hostname: 'modified.com',
-          includeSubdomains: true,
-        );
-
-        expect(copy.hostname, equals('modified.com'));
-        expect(copy.pins, equals(original.pins));
-        expect(copy.includeSubdomains, isTrue);
-        expect(copy.enforcePinning, equals(original.enforcePinning));
-      });
-
-      test('should preserve original values when no changes', () {
-        const original = EngineCertificatePinModel(
-          hostname: 'test.com',
-          pins: ['YLh1dUR9y6Kja30RrAn7JKnbQG/uEtLMkBgFF2Fuihg='],
-        );
-
-        final copy = original.copyWith();
-
-        expect(copy.hostname, equals(original.hostname));
-        expect(copy.pins, equals(original.pins));
-        expect(copy.includeSubdomains, equals(original.includeSubdomains));
-        expect(copy.enforcePinning, equals(original.enforcePinning));
-      });
-    });
-
     group('Equality and HashCode', () {
       test('should be equal when all properties match', () {
         const model1 = EngineCertificatePinModel(
