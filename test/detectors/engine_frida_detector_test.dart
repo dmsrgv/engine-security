@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:engine_security/src/src.dart';
+import 'package:engine_security/engine_security.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -2,17 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
-import 'package:engine_security/src/models/engine_certificate_pin_model.dart';
-
-class _CertificateHashes {
-  const _CertificateHashes({
-    required this.base64,
-    required this.hex,
-  });
-
-  final String base64;
-  final String hex;
-}
+import 'package:engine_security/engine_security.dart';
 
 class EngineSecurityHttpOverrides extends HttpOverrides {
   EngineSecurityHttpOverrides({
@@ -90,7 +80,7 @@ class EngineSecurityHttpOverrides extends HttpOverrides {
     return null;
   }
 
-  _CertificateHashes? _calculatePublicKeyHashes(final X509Certificate certificate) {
+  EngineCertificateHashesModel? _calculatePublicKeyHashes(final X509Certificate certificate) {
     try {
       final certBytes = certificate.der;
 
@@ -98,7 +88,7 @@ class EngineSecurityHttpOverrides extends HttpOverrides {
       final base64Hash = base64Encode(hash.bytes);
       final hexHash = hash.bytes.map((final b) => b.toRadixString(16).padLeft(2, '0')).join();
 
-      return _CertificateHashes(
+      return EngineCertificateHashesModel(
         base64: base64Hash,
         hex: hexHash,
       );

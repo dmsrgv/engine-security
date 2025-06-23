@@ -2,7 +2,7 @@
 
 import 'dart:io';
 
-import 'package:engine_security/src/src.dart';
+import 'package:engine_security/engine_security.dart';
 
 class EngineRootDetector implements IEngineSecurityDetector {
   EngineRootDetector({this.enabled = true});

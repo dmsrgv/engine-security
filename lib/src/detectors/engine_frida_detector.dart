@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:engine_security/src/src.dart';
+import 'package:engine_security/engine_security.dart';
 
 class EngineFridaDetector implements IEngineSecurityDetector {
   EngineFridaDetector({this.enabled = true});

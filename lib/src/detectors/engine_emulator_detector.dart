@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:engine_security/src/src.dart';
+import 'package:engine_security/engine_security.dart';
 
 class EngineEmulatorDetector implements IEngineSecurityDetector {
   EngineEmulatorDetector({this.enabled = true});
