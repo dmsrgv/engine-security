@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2024-12-28
+
+### Refactored
+- **Code Organization** - Moved `_CertificateHashes` to proper model structure
+  - Created `EngineCertificateHashesModel` in `lib/src/models/engine_certificate_hashes_model.dart`
+  - Added export to `models.dart` following alphabetical order
+  - Removed inline `_CertificateHashes` class from `engine_security_http_overrides.dart`
+  - Updated imports and references to use new model
+  - Improved code organization and maintainability following project standards
+
+### Technical Improvements
+- Enhanced adherence to project architecture patterns
+- Better separation of concerns between network and model layers
+- Improved code readability and maintainability
+
 ## [1.2.0] - 2024-12-27
 
 ### Added
