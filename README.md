@@ -538,11 +538,31 @@ Contribuições são bem-vindas! Por favor:
 
 Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
-## 🏢 Sobre a STMR
-
-Desenvolvido pela [STMR](https://stmr.tech) - Especialistas em soluções móveis.
-
 ---
 
 **⚠️ Aviso de Segurança**: Este pacote é uma ferramenta de detecção, não uma solução de segurança completa. Sempre implemente múltiplas camadas de segurança em suas aplicações.
+
+
+## ❤️ Feito com Amor
+
+**Desenvolvido por:** [Thiago Moreira](https://github.com/moreirawebmaster)  
+**Organização:** [STMR](https://stmr.tech)  
+**Domínio:** tech.stmr
+
+---
+
+**⭐ Se este projeto te ajudou, considere dar uma estrela no repositório!**
+
+[![GitHub stars](https://img.shields.io/github/stars/moreirawebmaster/engine-security?style=social)](https://github.com/moreirawebmaster/engine-security/stargazers)
+
+**🤝 Contribuições são sempre bem-vindas!**
+
+[![GitHub issues](https://img.shields.io/github/issues/moreirawebmaster/engine-security)](https://github.com/moreirawebmaster/engine-security/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/moreirawebmaster/engine-security)](https://github.com/moreirawebmaster/engine-security/pulls)
+
+---
+
+**📧 Contato:** [Email](mailto:moreirawebmaster@gmail.com)  
+**🌐 Website:** [stmr.tech](https://stmr.tech)  
+**🐦 Twitter:** [@moreirawebmaster](https://twitter.com/parabastech)
 

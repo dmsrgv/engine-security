@@ -1,6 +1,6 @@
 name: engine_security
 description: Advanced security detection system for Flutter applications focused on Android and iOS. Detects Frida, Root/Jailbreak, Emulator, and Debugger threats with high precision.
-version: 1.2.0
+version: 1.2.1
 homepage: https://stmr.tech
 repository: https://github.com/moreirawebmaster/engine-security
 issue_tracker: https://github.com/moreirawebmaster/engine-security/issues
@@ -29,9 +29,9 @@ dependencies:
     sdk: flutter
   device_info_plus: ^11.5.0
   package_info_plus: ^8.3.0
-  geolocator: ^13.0.1
-  location: ^7.0.0
-  permission_handler: ^11.3.1
+  geolocator: ^14.0.1
+  location: ^8.0.1
+  permission_handler: ^12.0.0+1
   crypto: ^3.0.5
 
 dev_dependencies:
