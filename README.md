@@ -543,8 +543,6 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 **⚠️ Aviso de Segurança**: Este pacote é uma ferramenta de detecção, não uma solução de segurança completa. Sempre implemente múltiplas camadas de segurança em suas aplicações.
 
 
-## ❤️ Feito com Amor
-
 **Desenvolvido por:** [Thiago Moreira](https://github.com/moreirawebmaster)  
 **Organização:** [STMR](https://stmr.tech)  
 **Domínio:** tech.stmr
