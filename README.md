@@ -7,75 +7,75 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Android%20%7C%20iOS-blue)](https://pub.dev/packages/engine_security)
 
-> **Sistema avançado de detecção de segurança para aplicações Flutter focado em Android e iOS**
+> **Современная система обнаружения угроз безопасности для Flutter-приложений, ориентированная на Android и iOS**
 
-## 📋 Índice
+## 📋 Оглавление
 
-- [Recursos](#-recursos)
-- [Instalação](#-instalação)
-- [Uso Rápido](#-uso-rápido)
-- [Detectores Disponíveis](#-detectores-disponíveis)
+- [Возможности](#-возможности)
+- [Установка](#-установка)
+- [Быстрый старт](#-быстрый-старт)
+- [Доступные детекторы](#-доступные-детекторы)
 - [HTTPS Certificate Pinning](#-https-certificate-pinning)
-- [GPS Fake Detection](#-gps-fake-detection)
-- [Modelos de Dados](#-modelos-de-dados)
-- [Interface](#-interface)
-- [Exemplos](#-exemplos)
-- [Desenvolvimento](#-desenvolvimento)
-- [Qualidade e Testes](#-qualidade-e-testes)
-- [Contribuição](#-contribuição)
-- [Licença](#-licença)
+- [Обнаружение поддельного GPS](#-обнаружение-поддельного-gps)
+- [Модели данных](#-модели-данных)
+- [Интерфейс](#-интерфейс)
+- [Примеры](#-примеры)
+- [Разработка](#-разработка)
+- [Качество и тесты](#-качество-и-тесты)
+- [Вклад](#-вклад)
+- [Лицензия](#-лицензия)
 
-## 🚀 Recursos
+## 🚀 Возможности
 
-- ✅ **100% de Cobertura de Testes** - Todos os componentes testados
-- 🎯 **Pontuação Pana 100/100** - Qualidade máxima no pub.dev
-- 🔄 **CI/CD Automatizado** - Pipeline completo com GitHub Actions
-- 📱 **Android & iOS Exclusivo** - Otimizado para dispositivos móveis
-- 🛡️ **6 Detectores Especializados** - Frida, Root/Jailbreak, HTTPS Pinning, GPS Fake, Emulator, Debugger
-- ⚡ **Detecção Assíncrona** - Performance otimizada
-- 🎨 **API Intuitiva** - Fácil integração e uso
-- 📊 **Sistema de Confiança** - Níveis de confiança calibrados
-- 🔒 **Zero Dependências Externas** - Seguro e leve
+- ✅ **100% покрытие тестами** — все компоненты протестированы
+- 🎯 **Pana Score 100/100** — максимальное качество на pub.dev
+- 🔄 **Автоматизированный CI/CD** — полный pipeline на GitHub Actions
+- 📱 **Только Android & iOS** — оптимизировано для мобильных устройств
+- 🛡️ **6 специализированных детекторов** — Frida, Root/Jailbreak, HTTPS Pinning, GPS Fake, Эмулятор, Отладчик
+- ⚡ **Асинхронное обнаружение** — оптимизированная производительность
+- 🎨 **Интуитивно понятный API** — простая интеграция и использование
+- 📊 **Система доверия** — калиброванные уровни доверия
+- 🔒 **Без внешних зависимостей** — безопасно и легко
 
-## 📦 Instalação
+## 📦 Установка
 
-Adicione ao seu `pubspec.yaml`:
+Добавьте в ваш `pubspec.yaml`:
 
 ```yaml
 dependencies:
   engine_security: ^1.2.0
 ```
 
-Execute:
+Выполните:
 
 ```bash
 flutter pub get
 ```
 
-## ⚡ Uso Rápido
+## ⚡ Быстрый старт
 
 ```dart
 import 'package:engine_security/engine_security.dart';
 
 void main() async {
-  // Detectar Frida
+  // Обнаружение Frida
   final fridaDetector = EngineFridaDetector();
   final fridaResult = await fridaDetector.performCheck();
   
   if (!fridaResult.isSecure) {
-    print('⚠️ Frida detectado: ${fridaResult.details}');
-    print('🎯 Confiança: ${fridaResult.confidence}');
+    print('⚠️ Обнаружен Frida: ${fridaResult.details}');
+    print('🎯 Доверие: ${fridaResult.confidence}');
   }
   
-  // Detectar Root/Jailbreak
+  // Обнаружение Root/Jailbreak
   final rootDetector = EngineRootDetector();
   final rootResult = await rootDetector.performCheck();
   
   if (!rootResult.isSecure) {
-    print('⚠️ Device comprometido: ${rootResult.details}');
+    print('⚠️ Устройство скомпрометировано: ${rootResult.details}');
   }
   
-  // Verificação completa
+  // Полная проверка
   await performFullSecurityCheck();
 }
 
@@ -89,7 +89,7 @@ Future<void> performFullSecurityCheck() async {
     EngineDebuggerDetector(),
   ];
   
-  print('🔍 Executando verificação completa de segurança...\n');
+  print('🔍 Запуск полной проверки безопасности...\n');
   
   for (final detector in detectors) {
     if (detector.isAvailable) {
@@ -97,76 +97,82 @@ Future<void> performFullSecurityCheck() async {
       final status = result.isSecure ? '✅' : '❌';
       
       print('$status ${detector.detectorName}');
-      print('   Confiança: ${(result.confidence * 100).toStringAsFixed(1)}%');
-      print('   Detalhes: ${result.details ?? 'N/A'}');
+      print('   Доверие: ${(result.confidence * 100).toStringAsFixed(1)}%');
+      print('   Детали: ${result.details ?? 'N/A'}');
       print('');
     }
   }
 }
 ```
 
-## 🛡️ Detectores Disponíveis
+## 🛡️ Доступные детекторы
 
 ### 1. 🔴 Frida Detector (`EngineFridaDetector`)
-- **Ameaça**: `EngineSecurityThreatType.frida`
-- **Severidade**: 9/10
-- **Confiança**: 95%
-- **Métodos**: Detecção de processos, bibliotecas e portas
-- **Plataformas**: Android ✅ | iOS ✅
+
+- **Угроза**: `EngineSecurityThreatType.frida`
+- **Серьёзность**: 9/10
+- **Доверие**: 95%
+- **Методы**: Обнаружение процессов, библиотек и портов
+- **Платформы**: Android ✅ | iOS ✅
 
 ### 2. 🔑 Root/Jailbreak Detector (`EngineRootDetector`)
-- **Ameaça**: `EngineSecurityThreatType.rootJailbreak`
-- **Severidade**: 8/10
-- **Confiança**: 90%
-- **Métodos**: Arquivos de sistema, apps instalados, permissões
-- **Plataformas**: Android ✅ | iOS ✅
+
+- **Угроза**: `EngineSecurityThreatType.rootJailbreak`
+- **Серьёзность**: 8/10
+- **Доверие**: 90%
+- **Методы**: Системные файлы, установленные приложения, разрешения
+- **Платформы**: Android ✅ | iOS ✅
 
 ### 3. 🔒 HTTPS Certificate Pinning Detector (`EngineHttpsPinningDetector`)
-- **Ameaça**: `EngineSecurityThreatType.httpsPinning`
-- **Severidade**: 8/10
-- **Confiança**: 95%
-- **Métodos**: Validação de certificados SSL/TLS, fingerprints SHA-256
-- **Plataformas**: Android ✅ | iOS ✅
+
+- **Угроза**: `EngineSecurityThreatType.httpsPinning`
+- **Серьёзность**: 8/10
+- **Доверие**: 95%
+- **Методы**: Валидация SSL/TLS сертификатов, SHA-256 отпечатки
+- **Платформы**: Android ✅ | iOS ✅
 
 ### 4. 🗺️ GPS Fake Detector (`EngineGpsFakeDetector`)
-- **Ameaça**: `EngineSecurityThreatType.gpsFake`
-- **Severidade**: 7/10
-- **Confiança**: 90%
-- **Métodos**: Mock location, apps falsos, consistência GPS
-- **Plataformas**: Android ✅ | iOS ✅
+
+- **Угроза**: `EngineSecurityThreatType.gpsFake`
+- **Серьёзность**: 7/10
+- **Доверие**: 90%
+- **Методы**: Mock location, поддельные приложения, консистентность GPS
+- **Платформы**: Android ✅ | iOS ✅
 
 ### 5. 📱 Emulator Detector (`EngineEmulatorDetector`)
-- **Ameaça**: `EngineSecurityThreatType.emulator`
-- **Severidade**: 6/10
-- **Confiança**: 85%
-- **Métodos**: Hardware, sensores, características do sistema
-- **Plataformas**: Android ✅ | iOS ✅
+
+- **Угроза**: `EngineSecurityThreatType.emulator`
+- **Серьёзность**: 6/10
+- **Доверие**: 85%
+- **Методы**: Аппаратные характеристики, сенсоры, системные признаки
+- **Платформы**: Android ✅ | iOS ✅
 
 ### 6. 🐛 Debugger Detector (`EngineDebuggerDetector`)
-- **Ameaça**: `EngineSecurityThreatType.debugger`
-- **Severidade**: 2/10
-- **Confiança**: 85%
-- **Métodos**: Processos de debug, timing attacks
-- **Plataformas**: Android ✅ | iOS ✅
+
+- **Угроза**: `EngineSecurityThreatType.debugger`
+- **Серьёзность**: 2/10
+- **Доверие**: 85%
+- **Методы**: Процессы отладки, timing-атаки
+- **Платформы**: Android ✅ | iOS ✅
 
 ## 🔒 HTTPS Certificate Pinning
 
-O Engine Security inclui um sistema robusto de certificate pinning que protege contra ataques man-in-the-middle e interceptação de tráfego.
+Engine Security включает надёжную систему certificate pinning для защиты от атак типа man-in-the-middle и перехвата трафика.
 
-### Configuração Básica
+### Базовая настройка
 
 ```dart
 import 'package:engine_security/engine_security.dart';
 import 'dart:io';
 
 void setupCertificatePinning() {
-  // Configurar pins para diferentes domínios
+  // Настройка pins для разных доменов
   final pins = [
     EngineCertificatePinModel(
       hostname: 'api.example.com',
       pins: [
-        'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=', // SHA-256 em base64
-        '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', // SHA-256 em hex
+        'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=', // SHA-256 в base64
+        '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', // SHA-256 в hex
       ],
       includeSubdomains: true,
       enforcePinning: true,
@@ -174,19 +180,19 @@ void setupCertificatePinning() {
     EngineCertificatePinModel(
       hostname: 'stmr.tech',
       pins: [
-        '17a8d38a1f559246194bccae62a794ff80d419e849fa78811a4910d7283c1f75', // SHA-256 fingerprint real
+        '17a8d38a1f559246194bccae62a794ff80d419e849fa78811a4910d7283c1f75', // Реальный SHA-256 отпечаток
       ],
       includeSubdomains: true,
       enforcePinning: true,
     ),
   ];
 
-  // Configurar HttpOverrides global
+  // Глобальная настройка HttpOverrides
   final httpOverrides = EngineSecurityHttpOverrides(
     pinnedCertificates: pins,
     onPinningValidation: (hostname, isValid, error) {
-      print('Validação de pin para $hostname: ${isValid ? 'OK' : 'FALHA'}');
-      if (error != null) print('Erro: $error');
+      print('Проверка pin для $hostname: ${isValid ? 'OK' : 'ОШИБКА'}');
+      if (error != null) print('Ошибка: $error');
     },
   );
 
@@ -194,7 +200,7 @@ void setupCertificatePinning() {
 }
 ```
 
-### Detector de Certificate Pinning
+### Детектор Certificate Pinning
 
 ```dart
 Future<void> checkCertificatePinning() async {
@@ -208,85 +214,95 @@ Future<void> checkCertificatePinning() async {
       ),
     ],
     testConnectivity: false,
-    strictMode: false, // true = só valida pins existentes
+    strictMode: false, // true = только проверка существующих pins
   );
   
   final result = await detector.performCheck();
   
   if (!result.isSecure) {
-    print('Certificate pinning não está configurado!');
-    print('Detalhes: ${result.details}');
+    print('Certificate pinning не настроен!');
+    print('Детали: ${result.details}');
   } else {
-    print('Certificate pinning configurado corretamente!');
-    print('Sites protegidos: ${result.details}');
+    print('Certificate pinning настроен корректно!');
+    print('Защищённые сайты: ${result.details}');
   }
 }
 ```
 
-### Obtendo Fingerprints de Certificados
+### Получение отпечатков сертификатов
 
-#### Método 1: Usando Engine Security (Automático)
+#### Метод 1: Использование Engine Security (автоматически)
+
 ```dart
-// Obter o fingerprint diretamente do servidor ativo
+// Получить отпечаток напрямую с сервера
 final pinModel = await EngineHttpsPinningDetector.createPinFromLiveHost('stmr.tech');
-print('Fingerprints obtidos: ${pinModel?.pins}');
+print('Полученные отпечатки: ${pinModel?.pins}');
 ```
 
-#### Método 2: OpenSSL
+#### Метод 2: OpenSSL
+
 ```bash
 echo | openssl s_client -connect stmr.tech:443 2>/dev/null | openssl x509 -fingerprint -sha256 -noout
 ```
 
-#### Método 3: Chrome DevTools
-1. Abra o site no Chrome
-2. F12 → Security → View Certificate
-3. Copie o SHA-256 fingerprint
+#### Метод 3: Chrome DevTools
 
-#### Método 4: A partir de arquivo
+1. Откройте сайт в Chrome
+2. F12 → Security → View Certificate
+3. Скопируйте SHA-256 отпечаток
+
+#### Метод 4: Из файла
+
 ```dart
-// Se você tem um arquivo .crt ou .pem
+// Если у вас есть .crt или .pem файл
 final pinModel = await EngineHttpsPinningDetector.createPinFromCertificateFile(
   'api.example.com',
   '/path/to/certificate.crt',
 );
 ```
 
-#### Método 5: Hash conhecido
+#### Метод 5: Известный хеш
+
 ```dart
-// Se você já tem o hash SHA-256
+// Если у вас уже есть SHA-256 хеш
 final pinModel = EngineHttpsPinningDetector.createPinFromHash(
   'stmr.tech',
   '17a8d38a1f559246194bccae62a794ff80d419e849fa78811a4910d7283c1f75',
 );
 ```
 
-## 🗺️ GPS Fake Detection
+## 🗺️ Обнаружение поддельного GPS
 
-O `EngineGpsFakeDetector` utiliza múltiplas técnicas para detectar manipulação de GPS:
+`EngineGpsFakeDetector` использует несколько техник для обнаружения подделки GPS:
 
-### Técnicas de Detecção
+### Техники обнаружения
 
-#### 1. 🔧 Verificação de Mock Location (Android)
-- Detecta se as "opções de desenvolvedor" têm mock location habilitado
-- Verifica configurações do sistema Android
+#### 1. 🔧 Проверка Mock Location (Android)
 
-#### 2. 📱 Detecção de Apps de GPS Fake
-- Verifica instalação de mais de 25 apps conhecidos de GPS fake
-- Lista atualizada dos principais apps de spoofing de localização
+- Обнаруживает, включена ли опция mock location для разработчиков
+- Проверяет системные настройки Android
 
-#### 3. 📊 Análise de Confiabilidade da Fonte
-- Verifica precisão suspeita do GPS (< 100m pode indicar fake)
-- Detecta valores impossíveis (altitude e velocidade zero)
+#### 2. 📱 Обнаружение приложений для подделки GPS
 
-#### 4. 🔄 Verificação de Consistência GPS
-- Analisa movimento impossível entre leituras GPS
-- Detecta "teletransporte" (distância > 1km em < 10s)
+- Проверяет установку более 25 известных приложений для подделки GPS
+- Актуальный список основных приложений для spoofing
 
-#### 5. 🔐 Análise de Permissões
-- Verifica interferência em permissões de localização
-- Detecta desabilitação suspeita de serviços de localização
+#### 3. 📊 Анализ достоверности источника
 
-### Exemplo de Uso
+- Проверяет подозрительную точность GPS (< 100м может быть подделкой)
+- Обнаруживает невозможные значения (высота и скорость равны нулю)
+
+#### 4. 🔄 Проверка консистентности GPS
+
+- Анализирует невозможные перемещения между GPS-отметками
+- Обнаруживает "телепортацию" (расстояние > 1км за < 10с)
+
+#### 5. 🔐 Анализ разрешений
+
+- Проверяет вмешательство в разрешения на определение местоположения
+- Обнаруживает подозрительное отключение сервисов геолокации
+
+### Пример использования
 
 ```dart
 import 'package:engine_security/engine_security.dart';
@@ -294,21 +310,21 @@ import 'package:engine_security/engine_security.dart';
 Future<void> checkGPSFake() async {
   final gpsDetector = EngineGpsFakeDetector();
   
-  // Verificação básica
+  // Базовая проверка
   final result = await gpsDetector.performCheck();
   
   if (!result.isSecure) {
-    print('⚠️ GPS Fake detectado!');
-    print('📍 Detalhes: ${result.details}');
-    print('🔍 Método: ${result.detectionMethod}');
-    print('🎯 Confiança: ${(result.confidence * 100).toStringAsFixed(1)}%');
+    print('⚠️ Обнаружен поддельный GPS!');
+    print('📍 Детали: ${result.details}');
+    print('🔍 Метод: ${result.detectionMethod}');
+    print('🎯 Доверие: ${(result.confidence * 100).toStringAsFixed(1)}%');
   } else {
-    print('✅ GPS é confiável');
+    print('✅ GPS достоверен');
   }
 }
 ```
 
-## 📊 Modelos de Dados
+## 📊 Модели данных
 
 ### EngineSecurityCheckModel
 
@@ -342,11 +358,11 @@ class EngineDetectorInfoModel {
 ```dart
 class EngineCertificatePinModel {
   final String hostname;
-  final List<String> pins; // SHA-256 em base64 ou hexadecimal
+  final List<String> pins; // SHA-256 в base64 или hex
   final bool includeSubdomains;
   final bool enforcePinning;
   
-  // Métodos de validação
+  // Методы валидации
   bool isValidPinFormat(String pin);
   bool matchesHostname(String host);
 }
@@ -356,17 +372,17 @@ class EngineCertificatePinModel {
 
 ```dart
 enum EngineSecurityThreatType {
-  unknown,        // Severidade: 5
-  frida,          // Severidade: 9
-  rootJailbreak,  // Severidade: 8
-  httpsPinning,   // Severidade: 8
-  gpsFake,        // Severidade: 7
-  emulator,       // Severidade: 6
-  debugger,       // Severidade: 2
+  unknown,        // Серьёзность: 5
+  frida,          // Серьёзность: 9
+  rootJailbreak,  // Серьёзность: 8
+  httpsPinning,   // Серьёзность: 8
+  gpsFake,        // Серьёзность: 7
+  emulator,       // Серьёзность: 6
+  debugger,       // Серьёзность: 2
 }
 ```
 
-## 🔧 Interface
+## 🔧 Интерфейс
 
 ### IEngineSecurityDetector
 
@@ -380,16 +396,16 @@ abstract class IEngineSecurityDetector {
 }
 ```
 
-## 📱 Exemplos
+## 📱 Примеры
 
-Execute o exemplo interativo:
+Запустите интерактивный пример:
 
 ```bash
 cd demo/security_demo
 flutter run
 ```
 
-### Implementação Personalizada
+### Кастомная реализация
 
 ```dart
 class MySecurityManager {
@@ -413,7 +429,7 @@ class MySecurityManager {
         } catch (e) {
           results.add(EngineSecurityCheckModel.threat(
             threatType: detector.threatType,
-            details: 'Erro na detecção: $e',
+            details: 'Ошибка при обнаружении: $e',
             confidence: 0.5,
           ));
         }
@@ -437,130 +453,128 @@ class MySecurityManager {
 }
 ```
 
-## 🔧 Desenvolvimento
+## 🔧 Разработка
 
-### Estrutura do Projeto
+### Структура проекта
 
 ```
 lib/
-├── engine_security.dart           # Ponto de entrada principal
+├── engine_security.dart           # Главная точка входа
 └── src/
-    ├── src.dart                    # Exportações centralizadas
-    ├── detectors/                  # Detectores de segurança
-    │   ├── i_engine_security_detector.dart     # Interface base
-    │   ├── engine_frida_detector.dart          # Detector Frida
-    │   ├── engine_root_detector.dart           # Detector Root/Jailbreak
-    │   ├── engine_https_pinning_detector.dart  # Detector HTTPS Pinning
-    │   ├── engine_gps_fake_detector.dart       # Detector GPS Fake
-    │   ├── engine_emulator_detector.dart       # Detector Emulator
-    │   └── engine_debugger_detector.dart       # Detector Debugger
-    ├── models/                     # Modelos de dados
-    │   ├── engine_security_check_model.dart    # Modelo de resultado
-    │   ├── engine_detector_info_model.dart     # Informações do detector
-    │   └── engine_certificate_pin_model.dart   # Modelo de certificate pin
-    ├── enums/                      # Enumerações
-    │   └── engine_security_threat_type.dart    # Tipos de ameaças
-    └── network/                    # Componentes de rede
-        └── engine_security_http_overrides.dart # HttpOverrides para pinning
+    ├── src.dart                    # Централизованные экспорты
+    ├── detectors/                  # Детекторы безопасности
+    │   ├── i_engine_security_detector.dart     # Базовый интерфейс
+    │   ├── engine_frida_detector.dart          # Детектор Frida
+    │   ├── engine_root_detector.dart           # Детектор Root/Jailbreak
+    │   ├── engine_https_pinning_detector.dart  # Детектор HTTPS Pinning
+    │   ├── engine_gps_fake_detector.dart       # Детектор GPS Fake
+    │   ├── engine_emulator_detector.dart       # Детектор Emulator
+    │   └── engine_debugger_detector.dart       # Детектор Debugger
+    ├── models/                     # Модели данных
+    │   ├── engine_security_check_model.dart    # Модель результата
+    │   ├── engine_detector_info_model.dart     # Информация о детекторе
+    │   └── engine_certificate_pin_model.dart   # Модель certificate pin
+    ├── enums/                      # Перечисления
+    │   └── engine_security_threat_type.dart    # Типы угроз
+    └── network/                    # Сетевые компоненты
+        └── engine_security_http_overrides.dart # HttpOverrides для pinning
 
 test/
-├── all_tests.dart                  # Suite completa de testes
-├── models/                         # Testes dos modelos
-├── enums/                          # Testes dos enums
-├── interface/                      # Testes da interface
-└── detectors/                      # Testes dos detectores
+├── all_tests.dart                  # Полный набор тестов
+├── models/                         # Тесты моделей
+├── enums/                          # Тесты перечислений
+├── interface/                      # Тесты интерфейса
+└── detectors/                      # Тесты детекторов
 
 demo/
-└── security_demo/                  # App demonstrativo
+└── security_demo/                  # Демонстрационное приложение
 
 scripts/
-├── test_coverage.sh               # Script de cobertura
-└── pana_analysis.sh              # Script de análise Pana
+├── test_coverage.sh               # Скрипт покрытия тестами
+└── pana_analysis.sh               # Скрипт анализа Pana
 ```
 
-### Scripts de Desenvolvimento
+### Скрипты для разработки
 
 ```bash
-# Executar testes com cobertura
+# Запуск тестов с покрытием
 ./scripts/test_coverage.sh
 
-# Análise de qualidade Pana
+# Анализ качества Pana
 ./scripts/pana_analysis.sh
 
-# Análise estática
+# Статический анализ
 dart analyze
 
-# Formatação de código
+# Форматирование кода
 dart format .
 
-# Publicar (dry-run)
+# Публикация (dry-run)
 dart pub publish --dry-run
 ```
 
-### Comandos de Qualidade
+### Команды для проверки качества
 
 ```bash
-# Executar todos os testes
+# Запуск всех тестов
 flutter test
 
-# Testes com cobertura
+# Тесты с покрытием
 flutter test --coverage
 genhtml coverage/lcov.info -o coverage/html
 
-# Verificar cobertura mínima
+# Проверка минимального покрытия
 dart pub global activate test_coverage
 dart pub global run test_coverage --min-coverage=50
 
-# Análise Pana
+# Анализ Pana
 dart pub global activate pana
 dart pub global run pana
 ```
 
-## 🤝 Contribuição
+## 🤝 Вклад
 
-Contribuições são bem-vindas! Por favor:
+Вклады приветствуются! Пожалуйста:
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+1. Сделайте fork проекта
+2. Создайте ветку для вашей фичи (`git checkout -b feature/AmazingFeature`)
+3. Зафиксируйте изменения (`git commit -m 'Добавить AmazingFeature'`)
+4. Отправьте ветку (`git push origin feature/AmazingFeature`)
+5. Откройте Pull Request
 
-### Diretrizes de Contribuição
+### Рекомендации по вкладу
 
-- Mantenha 100% de cobertura de testes
-- Siga o padrão de código existente
-- Documente novas funcionalidades
-- Teste em Android e iOS
-- Atualize o CHANGELOG.md
+- Поддерживайте 100% покрытие тестами
+- Следуйте существующему стилю кода
+- Документируйте новые функции
+- Тестируйте на Android и iOS
+- Обновляйте CHANGELOG.md
 
-## 📄 Licença
+## 📄 Лицензия
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
----
-
-**⚠️ Aviso de Segurança**: Este pacote é uma ferramenta de detecção, não uma solução de segurança completa. Sempre implemente múltiplas camadas de segurança em suas aplicações.
-
-
-**Desenvolvido por:** [Thiago Moreira](https://github.com/moreirawebmaster)  
-**Organização:** [STMR](https://stmr.tech)  
-**Domínio:** tech.stmr
+Этот проект лицензирован по лицензии MIT — смотрите файл [LICENSE](LICENSE) для подробностей.
 
 ---
 
-**⭐ Se este projeto te ajudou, considere dar uma estrela no repositório!**
+**⚠️ Внимание по безопасности**: Этот пакет — инструмент обнаружения, а не полноценное решение по безопасности. Всегда реализуйте несколько уровней защиты в ваших приложениях.
+
+**Разработано:** [Thiago Moreira](https://github.com/moreirawebmaster)  
+**Организация:** [STMR](https://stmr.tech)  
+**Домен:** tech.stmr
+
+---
+
+**⭐ Если этот проект был вам полезен, поставьте звезду репозиторию!**
 
 [![GitHub stars](https://img.shields.io/github/stars/moreirawebmaster/engine-security?style=social)](https://github.com/moreirawebmaster/engine-security/stargazers)
 
-**🤝 Contribuições são sempre bem-vindas!**
+**🤝 Вклады всегда приветствуются!**
 
 [![GitHub issues](https://img.shields.io/github/issues/moreirawebmaster/engine-security)](https://github.com/moreirawebmaster/engine-security/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/moreirawebmaster/engine-security)](https://github.com/moreirawebmaster/engine-security/pulls)
 
 ---
 
-**📧 Contato:** [Email](mailto:moreirawebmaster@gmail.com)  
-**🌐 Website:** [stmr.tech](https://stmr.tech)  
+**📧 Контакт:** [Email](mailto:moreirawebmaster@gmail.com)  
+**🌐 Сайт:** [stmr.tech](https://stmr.tech)  
 **🐦 Twitter:** [@moreirawebmaster](https://twitter.com/parabastech)
-
