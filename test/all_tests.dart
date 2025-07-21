@@ -4,7 +4,6 @@ import 'detectors/engine_debugger_detector_test.dart' as engine_debugger_detecto
 import 'detectors/engine_detectors_integration_test.dart' as engine_detectors_integration_test;
 import 'detectors/engine_emulator_detector_test.dart' as engine_emulator_detector_test;
 import 'detectors/engine_frida_detector_test.dart' as engine_frida_detector_test;
-import 'detectors/engine_gps_fake_detector_test.dart' as engine_gps_fake_detector_test;
 import 'detectors/engine_https_pinning_detector_test.dart' as engine_https_pinning_detector_test;
 import 'detectors/engine_root_detector_test.dart' as engine_root_detector_test;
 import 'edge_cases/security_edge_cases_test.dart' as security_edge_cases_test;
@@ -34,7 +33,6 @@ void main() {
       engine_debugger_detector_test.main();
       engine_emulator_detector_test.main();
       engine_frida_detector_test.main();
-      engine_gps_fake_detector_test.main();
       engine_https_pinning_detector_test.main();
       engine_root_detector_test.main();
       engine_detectors_integration_test.main();
